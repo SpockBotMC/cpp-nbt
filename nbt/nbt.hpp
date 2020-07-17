@@ -30,7 +30,7 @@ Licensed under zlib, see repo License file for details
 #include <algorithm>
 #include <bit>
 #include <type_traits>
-#include "pprint.hpp"
+#include <cassert>
 
 namespace nbt {
 
@@ -80,6 +80,55 @@ template<int N> struct _FixedString {
 };
 template<int N> _FixedString(char const(&)[N])->_FixedString<N>;
 
+
+// My tiny, crap version of pprint
+// But we barely need pprint at all, so we use this instead
+class NbtPrinter {
+  std::ostream &stream_;
+  size_t indent_;
+  std::string line_terminator_;
+
+public:
+  NbtPrinter(std::ostream &stream = std::cout) : stream_(stream),
+  indent_(2), line_terminator_("\n") {}
+
+  NbtPrinter& line_terminator(const std::string& value) {
+    line_terminator_ = value;
+    return *this;
+  }
+  NbtPrinter& indent(size_t indent) {
+    indent_ = indent;
+    return *this;
+  }
+  NbtPrinter& inc_indent(size_t inc) {
+    indent_ += inc;
+    return *this;
+  }
+  NbtPrinter& dec_indent(size_t dec) {
+    indent_ -= dec;
+    return *this;
+  }
+
+  void print(auto value) {
+    print_internal(value, 0, line_terminator_);
+  }
+  void print_inline(auto value) {
+    print_internal(value, indent_, "");
+  }
+
+private:
+  void print_internal(auto value, size_t indent = 0,
+  const std::string &line_terminator = "\n") {
+    stream_ << std::string(indent, ' ') << value << line_terminator;
+  }
+
+  void print_internal(float value, size_t indent = 0,
+  const std::string &line_terminator = "\n") {
+    stream_ << std::string(indent, ' ') << value << 'f' << line_terminator;
+  }
+};
+
+
 enum {
   TAG_END,
   TAG_BYTE,
@@ -111,10 +160,10 @@ public:
   virtual void encode(std::ostream &buf) const = 0;
   virtual void decode(std::istream &buf) = 0;
   virtual void print(std::ostream &os) const {
-    pprint::PrettyPrinter pr(os);
+    NbtPrinter pr(os);
     print(pr);
   };
-  virtual void print(pprint::PrettyPrinter &pr, int pr_inline = 0) const = 0;
+  virtual void print(NbtPrinter &pr, int pr_inline = 0) const = 0;
 };
 
 static std::ostream& operator<<(std::ostream &os, const BaseTag &b) {
@@ -158,7 +207,7 @@ public:
     buf.write(reinterpret_cast<char *>(&tmp), sizeof(tmp));
   }
 
-  void print(pprint::PrettyPrinter &pr, int pr_inline = 0) const {
+  void print(NbtPrinter &pr, int pr_inline = 0) const {
     std::string str;
     if(this->name.has_value())
       str = this->type_name + "('" + this->name.value() + "'): " +
@@ -210,7 +259,7 @@ public:
     buf.write(reinterpret_cast<char *>(&tmp), sizeof(tmp));
   }
 
-  void print(pprint::PrettyPrinter &pr, int pr_inline = 0) const {
+  void print(NbtPrinter &pr, int pr_inline = 0) const {
     std::string str;
     if(this->name.has_value())
       str = this->type_name + "('" + this->name.value() + "'): " +
@@ -263,7 +312,7 @@ public:
     }
   }
 
-  void print(pprint::PrettyPrinter &pr, int pr_inline = 0) const {
+  void print(NbtPrinter &pr, int pr_inline = 0) const {
     std::string str;
     if(this->name.has_value())
       str = this->type_name + "('" + this->name.value() + "'): [";
@@ -281,7 +330,7 @@ public:
   }
 
   void print(std::ostream &os) const {
-    pprint::PrettyPrinter pr(os);
+    NbtPrinter pr(os);
     print(pr);
   }
 };
@@ -324,7 +373,7 @@ public:
     write_string(buf, this->val);
   }
 
-  void print(pprint::PrettyPrinter &pr, int pr_inline = 0) const {
+  void print(NbtPrinter &pr, int pr_inline = 0) const {
     std::string str;
     if(this->name.has_value())
       str = this->type_name + "('" + this->name.value() + "'): '" +
@@ -353,7 +402,7 @@ public:
   void decode(std::istream &buf);
   void encode(std::ostream &buf) const;
 
-  void print(pprint::PrettyPrinter &pr, int pr_inline = 0) const {
+  void print(NbtPrinter &pr, int pr_inline = 0) const {
     auto str = std::string(this->type_name + "('" + this->name.value_or("") +
     "'): " + std::to_string(this->val.size()) +
     ((this->val.size() == 1) ? " entry " : " entries ") + "{");
@@ -458,7 +507,7 @@ public:
     encode(buf);
   }
 
-  void print(pprint::PrettyPrinter &pr, int pr_inline = 0) const {
+  void print(NbtPrinter &pr, int pr_inline = 0) const {
     auto str = std::string(this->type_name + "('" + this->name.value_or("") +
     "'): " + std::to_string(this->val.size()) +
     ((this->val.size() == 1) ? " entry " : " entries ") + "{");

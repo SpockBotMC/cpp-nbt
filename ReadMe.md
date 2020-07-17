@@ -2,7 +2,7 @@
 
 This is a C++20 header-only library for reading/writing
 [Minecraft NBT](https://wiki.vg/NBT) data:
-* Two header files, only need to `#include` one
+* Single header file
 * Requires C++20 (only compiles on GCC 10.1 as of 17Jul2020)
 * Reads from `istream`s, writes to `ostream`s
 * Supports pretty printing
