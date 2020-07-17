@@ -95,7 +95,7 @@ tags such as those contained inside `TagList`s
 * `TagIntArray` -> `std::vector<std::int32_t>`
 * `TagLongArray` -> `std::vector<std::int64_t>`
 * `TagList` -> `std::vector<std::unique_ptr<BaseTag>>`
-* `TagCompound` -> `std::unordered_map<std::string, std::unique_ptr<BaseTag>`
+* `TagCompound` -> `std::unordered_map<std::string, std::unique_ptr<BaseTag>>`
 
 ### Caveats
 
