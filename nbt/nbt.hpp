@@ -420,6 +420,7 @@ public:
   TagList(std::istream &buf, std::string name) : Tag(name, "TagList") {
     this->decode(buf);
   }
+  TagList(const TagList &other);
 
   void decode(std::istream &buf);
   void encode(std::ostream &buf) const;
@@ -458,6 +459,72 @@ public:
   }
   TagCompound(std::istream &buf, std::string name) : Tag(name, "TagCompound") {
     this->decode(buf);
+  }
+  TagCompound(const TagCompound &other) : Tag("TagCompound") {
+    if(other.name.has_value())
+      this->name = other.name.value();
+    for(auto& el : this->val) {
+      switch(el.second->tag_id) {
+        case TAG_BYTE:
+          this->val.insert({el.first,
+          std::make_unique<TagByte>(
+          *dynamic_cast<TagByte *>(el.second.get()))});
+          break;
+        case TAG_SHORT:
+          this->val.insert({el.first,
+          std::make_unique<TagShort>(
+          *dynamic_cast<TagShort *>(el.second.get()))});
+          break;
+        case TAG_INT:
+          this->val.insert({el.first,
+          std::make_unique<TagInt>(*dynamic_cast<TagInt *>(el.second.get()))});
+          break;
+        case TAG_LONG:
+          this->val.insert({el.first,
+          std::make_unique<TagLong>(
+          *dynamic_cast<TagLong *>(el.second.get()))});
+          break;
+        case TAG_FLOAT:
+          this->val.insert({el.first,
+          std::make_unique<TagFloat>(
+          *dynamic_cast<TagFloat *>(el.second.get()))});
+          break;
+        case TAG_DOUBLE:
+          this->val.insert({el.first,
+          std::make_unique<TagDouble>(*dynamic_cast<TagDouble *>(el.second.get()))});
+          break;
+        case TAG_BYTE_ARRAY:
+          this->val.insert({el.first,
+          std::make_unique<TagByteArray>(
+          *dynamic_cast<TagByteArray *>(el.second.get()))});
+          break;
+        case TAG_STRING:
+          this->val.insert({el.first,
+          std::make_unique<TagString>(
+          *dynamic_cast<TagString *>(el.second.get()))});
+          break;
+        case TAG_LIST:
+          this->val.insert({el.first,
+          std::make_unique<TagList>(
+          *dynamic_cast<TagList *>(el.second.get()))});
+          break;
+        case TAG_COMPOUND:
+          this->val.insert({el.first,
+          std::make_unique<TagCompound>(
+          *dynamic_cast<TagCompound *>(el.second.get()))});
+          break;
+        case TAG_INT_ARRAY:
+          this->val.insert({el.first,
+          std::make_unique<TagIntArray>(
+          *dynamic_cast<TagIntArray *>(el.second.get()))});
+          break;
+        case TAG_LONG_ARRAY:
+          this->val.insert({el.first,
+          std::make_unique<TagLongArray>(
+          *dynamic_cast<TagLongArray *>(el.second.get()))});
+          break;
+      }
+    }
   }
 
   void decode(std::istream &buf) {
@@ -562,6 +629,75 @@ inline TagCompound read_compound(std::istream &buf) {
 
 inline void write_compound(std::ostream &buf, TagCompound &tc) {
   tc.encode_full(buf);
+}
+
+TagList::TagList(const TagList &other) : Tag("TagList")  {
+  if(other.name.has_value())
+    this->name = other.name.value();
+  switch(other.list_id) {
+    case TAG_BYTE:
+      for(auto &el : other.val)
+        this->val.push_back(
+        std::make_unique<TagByte>(*dynamic_cast<TagByte *>(el.get())));
+      break;
+    case TAG_SHORT:
+      for(auto &el : other.val)
+        this->val.push_back(
+        std::make_unique<TagShort>(*dynamic_cast<TagShort *>(el.get())));
+      break;
+    case TAG_INT:
+      for(auto &el : other.val)
+        this->val.push_back(
+        std::make_unique<TagInt>(*dynamic_cast<TagInt *>(el.get())));
+      break;
+    case TAG_LONG:
+      for(auto &el : other.val)
+        this->val.push_back(
+        std::make_unique<TagLong>(*dynamic_cast<TagLong *>(el.get())));
+      break;
+    case TAG_FLOAT:
+      for(auto &el : other.val)
+        this->val.push_back(
+        std::make_unique<TagFloat>(*dynamic_cast<TagFloat *>(el.get())));
+      break;
+    case TAG_DOUBLE:
+      for(auto &el : other.val)
+        this->val.push_back(
+        std::make_unique<TagDouble>(*dynamic_cast<TagDouble *>(el.get())));
+      break;
+    case TAG_BYTE_ARRAY:
+      for(auto &el : other.val)
+        this->val.push_back(
+        std::make_unique<TagByteArray>(
+        *dynamic_cast<TagByteArray *>(el.get())));
+      break;
+    case TAG_STRING:
+      for(auto &el : other.val)
+        this->val.push_back(
+        std::make_unique<TagString>(*dynamic_cast<TagString *>(el.get())));
+      break;
+    case TAG_LIST:
+      for(auto &el : other.val)
+        this->val.push_back(
+        std::make_unique<TagList>(*dynamic_cast<TagList *>(el.get())));
+      break;
+    case TAG_COMPOUND:
+      for(auto &el : other.val)
+        this->val.push_back(
+        std::make_unique<TagCompound>(*dynamic_cast<TagCompound *>(el.get())));
+      break;
+    case TAG_INT_ARRAY:
+      for(auto &el : other.val)
+        this->val.push_back(
+        std::make_unique<TagIntArray>(*dynamic_cast<TagIntArray *>(el.get())));
+      break;
+    case TAG_LONG_ARRAY:
+      for(auto &el : other.val)
+        this->val.push_back(
+        std::make_unique<TagLongArray>(
+        *dynamic_cast<TagLongArray *>(el.get())));
+      break;
+  }
 }
 
 void TagList::decode(std::istream &buf) {
