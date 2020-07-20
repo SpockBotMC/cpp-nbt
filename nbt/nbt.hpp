@@ -156,6 +156,7 @@ public:
   BaseTag(const std::string name, const std::uint8_t id,
   const std::string type_name) :
   tag_id(id), type_name(type_name), name(name)  {}
+  virtual ~BaseTag() = default;
 
   virtual void encode(std::ostream &buf) const = 0;
   virtual void decode(std::istream &buf) = 0;
