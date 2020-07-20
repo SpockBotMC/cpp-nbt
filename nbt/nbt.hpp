@@ -357,7 +357,7 @@ public:
 };
 
 typedef TagArray<std::int8_t, TAG_BYTE_ARRAY, "TagByteAray"> TagByteArray;
-typedef TagArray<std::int16_t, TAG_INT_ARRAY, "TagIntArray"> TagIntArray;
+typedef TagArray<std::int32_t, TAG_INT_ARRAY, "TagIntArray"> TagIntArray;
 typedef TagArray<std::int64_t, TAG_LONG_ARRAY, "TagLongArray"> TagLongArray;
 
 inline void write_string(std::ostream &buf, const std::string &str) {
