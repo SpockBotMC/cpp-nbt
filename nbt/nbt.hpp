@@ -182,6 +182,8 @@ public:
   Tag(const std::string type_name) : BaseTag(id, type_name) {}
   Tag(const std::string name, const::std::string type_name) :
   BaseTag(name, id, type_name) {}
+  Tag(const T val, const std::string name, const::std::string type_name) :
+  BaseTag(name, id, type_name), val(val) {}
 };
 
 
@@ -190,6 +192,11 @@ class TagIntegral : public Tag<Integral, id> {
 public:
   TagIntegral() : TagIntegral::Tag(type_name.el) {}
   TagIntegral(std::string name) : TagIntegral::Tag(name, type_name.el) {}
+  TagIntegral(Integral val, std::string name) :
+  TagIntegral::Tag(val, name, type_name.el) {}
+  TagIntegral(Integral val) : TagIntegral::Tag(type_name.el) {
+    this->val = val;
+  }
   TagIntegral(std::istream &buf) : TagIntegral::Tag(type_name.el) {
     this->decode(buf);
   }
@@ -234,6 +241,11 @@ public:
 
   TagDecimal() : TagDecimal::Tag(type_name.el) {}
   TagDecimal(std::string name) : TagDecimal::Tag(name, type_name.el) {}
+  TagDecimal(Decimal val, std::string name) :
+  TagDecimal::Tag(val, name, type_name.el) {}
+  TagDecimal(Decimal val) : TagDecimal::Tag(type_name.el) {
+    this->val = val;
+  }
   TagDecimal(std::istream &buf) : TagDecimal::Tag(type_name.el) {
     this->decode(buf);
   }
@@ -284,6 +296,14 @@ public:
 
   TagArray() : TagArray::Tag(type_name.el) {}
   TagArray(std::string name) : TagArray::Tag(name, type_name.el) {}
+  TagArray(std::vector<T> val, std::string name) :
+  TagArray::Tag(val, name, type_name.el) {}
+  TagArray(std::initializer_list<T> l) : TagArray::Tag(type_name.el) {
+    this->val = l;
+  }
+  TagArray(std::vector<T> val) : TagArray::Tag(type_name.el) {
+    this->val = val;
+  }
   TagArray(std::istream &buf) : TagArray::Tag(type_name.el) {
     this->decode(buf);
   }
@@ -359,6 +379,7 @@ class TagString : public Tag<std::string, TAG_STRING> {
 public:
   TagString() : Tag("TagString") {}
   TagString(std::string name) : Tag(name, "TagString") {}
+  TagString(std::string val, std::string name) : Tag(val, name, "TagString") {}
   TagString(std::istream &buf) : Tag("TagString") {
     this->decode(buf);
   }
