@@ -167,7 +167,7 @@ public:
   virtual void print(NbtPrinter &pr, int pr_inline = 0) const = 0;
 };
 
-static std::ostream& operator<<(std::ostream &os, const BaseTag &b) {
+inline std::ostream& operator<<(std::ostream &os, const BaseTag &b) {
   b.print(os);
   return os;
 }
