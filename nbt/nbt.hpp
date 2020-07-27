@@ -631,7 +631,7 @@ inline void write_compound(std::ostream &buf, TagCompound &tc) {
   tc.encode_full(buf);
 }
 
-TagList::TagList(const TagList &other) : Tag("TagList")  {
+inline TagList::TagList(const TagList &other) : Tag("TagList")  {
   if(other.name.has_value())
     this->name = other.name.value();
   switch(other.list_id) {
@@ -700,7 +700,7 @@ TagList::TagList(const TagList &other) : Tag("TagList")  {
   }
 }
 
-void TagList::decode(std::istream &buf) {
+inline void TagList::decode(std::istream &buf) {
   buf.read(reinterpret_cast<char *>(&list_id), sizeof(list_id));
   std::int32_t len;
   buf.read(reinterpret_cast<char *>(&len), sizeof(len));
@@ -760,7 +760,7 @@ void TagList::decode(std::istream &buf) {
   }
 }
 
-void TagList::encode(std::ostream &buf) const {
+inline void TagList::encode(std::ostream &buf) const {
   buf.put(list_id);
   std::int32_t len = nbeswap(static_cast<std::int32_t>(this->val.size()));
   buf.write(reinterpret_cast<char *>(&len), sizeof(len));
