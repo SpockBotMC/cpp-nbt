@@ -469,6 +469,8 @@ public:
     if(this != &other) {
       if(other.name)
         this->name = other.name.value();
+      else
+        this->name.reset();
       for(auto& el : other.val) {
         switch(el.second->tag_id) {
           case TAG_BYTE:
@@ -633,6 +635,8 @@ inline TagList& TagList::operator=(const TagList& other) {
   if(this != &other) {
     if(other.name)
       this->name = other.name.value();
+    else
+      this->name.reset();
     switch(other.list_id) {
       case TAG_BYTE:
         for(auto &el : other.val)
