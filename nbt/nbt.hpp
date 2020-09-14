@@ -78,7 +78,7 @@ template<int N> struct _FixedString {
   constexpr auto operator<=>(_FixedString const&) const = default;
   char el[N];
 };
-template<int N> _FixedString(char const(&)[N])->_FixedString<N>;
+template<int N> _FixedString(char const(&)[N]) -> _FixedString<N>;
 
 // My tiny, crap version of pprint
 // But we barely need pprint at all, so we use this instead
@@ -88,8 +88,8 @@ class NbtPrinter {
   std::string line_terminator_;
 
 public:
-  NbtPrinter(std::ostream &stream = std::cout) : stream_(stream),
-  indent_(2), line_terminator_("\n") {}
+  NbtPrinter(std::ostream &stream = std::cout) : stream_(stream), indent_(2),
+      line_terminator_("\n") {}
 
   NbtPrinter& line_terminator(const std::string& value) {
     line_terminator_ = value;
@@ -117,12 +117,12 @@ public:
 
 private:
   void print_internal(auto value, size_t indent = 0,
-  const std::string &line_terminator = "\n") {
+      const std::string &line_terminator = "\n") {
     stream_ << std::string(indent, ' ') << value << line_terminator;
   }
 
   void print_internal(float value, size_t indent = 0,
-  const std::string &line_terminator = "\n") {
+      const std::string &line_terminator = "\n") {
     stream_ << std::string(indent, ' ') << value << 'f' << line_terminator;
   }
 };
@@ -146,14 +146,15 @@ enum {
 
 class BaseTag {
 public:
+  std::optional<std::string> name;
   const std::uint8_t tag_id;
   const std::string type_name;
-  std::optional<std::string> name;
+
   BaseTag(const std::uint8_t id, const std::string type_name) :
-  tag_id(id), type_name(type_name) {}
+      tag_id(id), type_name(type_name) {}
   BaseTag(const std::string name, const std::uint8_t id,
-  const std::string type_name) :
-  tag_id(id), type_name(type_name), name(name)  {}
+      const std::string type_name) : name(name), tag_id(id),
+      type_name(type_name) {}
   virtual ~BaseTag() = default;
 
   virtual void encode(std::ostream &buf) const = 0;
@@ -179,9 +180,9 @@ public:
   // templates is a no go. See: https://stackoverflow.com/q/62874007/1201456
   Tag(const std::string type_name) : BaseTag(id, type_name) {}
   Tag(const std::string name, const::std::string type_name) :
-  BaseTag(name, id, type_name) {}
+      BaseTag(name, id, type_name) {}
   Tag(const T val, const std::string name, const::std::string type_name) :
-  BaseTag(name, id, type_name), val(val) {}
+      BaseTag(name, id, type_name), val(val) {}
 };
 
 
@@ -191,7 +192,7 @@ public:
   TagIntegral() : TagIntegral::Tag(type_name.el) {}
   TagIntegral(std::string name) : TagIntegral::Tag(name, type_name.el) {}
   TagIntegral(Integral val, std::string name) :
-  TagIntegral::Tag(val, name, type_name.el) {}
+      TagIntegral::Tag(val, name, type_name.el) {}
   TagIntegral(Integral val) : TagIntegral::Tag(type_name.el) {
     this->val = val;
   }
@@ -199,7 +200,7 @@ public:
     this->decode(buf);
   }
   TagIntegral(std::istream &buf, std::string name) :
-  TagIntegral::Tag(name, type_name.el) {
+      TagIntegral::Tag(name, type_name.el) {
     this->decode(buf);
   }
 
@@ -217,7 +218,7 @@ public:
     std::string str;
     if(this->name.has_value())
       str = this->type_name + "('" + this->name.value() + "'): " +
-      std::to_string(this->val);
+          std::to_string(this->val);
     else
       str = this->type_name + "(None): " + std::to_string(this->val);
     if(pr_inline)
@@ -240,7 +241,7 @@ public:
   TagDecimal() : TagDecimal::Tag(type_name.el) {}
   TagDecimal(std::string name) : TagDecimal::Tag(name, type_name.el) {}
   TagDecimal(Decimal val, std::string name) :
-  TagDecimal::Tag(val, name, type_name.el) {}
+      TagDecimal::Tag(val, name, type_name.el) {}
   TagDecimal(Decimal val) : TagDecimal::Tag(type_name.el) {
     this->val = val;
   }
@@ -248,23 +249,21 @@ public:
     this->decode(buf);
   }
   TagDecimal(std::istream &buf, std::string name) :
-  TagDecimal::Tag(name, type_name.el) {
+      TagDecimal::Tag(name, type_name.el) {
     this->decode(buf);
   }
 
   void decode(std::istream &buf) {
-    std::conditional_t<
-      std::is_same_v<Decimal, float>, std::uint32_t , std::uint64_t
-    > tmp;
+    std::conditional_t<std::is_same_v<Decimal, float>, std::uint32_t,
+        std::uint64_t> tmp;
     buf.read(reinterpret_cast<char *>(&tmp), sizeof(tmp));
     tmp = nbeswap(tmp);
     memcpy(&this->val, &tmp, sizeof(tmp));
   }
 
   void encode(std::ostream &buf) const {
-    std::conditional_t<
-      std::is_same_v<Decimal, float>, std::uint32_t , std::uint64_t
-    > tmp;
+    std::conditional_t<std::is_same_v<Decimal, float>, std::uint32_t,
+        std::uint64_t> tmp;
     memcpy(&tmp, &this->val, sizeof(tmp));
     tmp = nbeswap(tmp);
     buf.write(reinterpret_cast<char *>(&tmp), sizeof(tmp));
@@ -274,7 +273,7 @@ public:
     std::string str;
     if(this->name.has_value())
       str = this->type_name + "('" + this->name.value() + "'): " +
-      std::to_string(this->val);
+          std::to_string(this->val);
     else
       str = this->type_name + "(None): " + std::to_string(this->val);
     if(pr_inline)
@@ -295,7 +294,7 @@ public:
   TagArray() : TagArray::Tag(type_name.el) {}
   TagArray(std::string name) : TagArray::Tag(name, type_name.el) {}
   TagArray(std::vector<T> val, std::string name) :
-  TagArray::Tag(val, name, type_name.el) {}
+      TagArray::Tag(val, name, type_name.el) {}
   TagArray(std::initializer_list<T> l) : TagArray::Tag(type_name.el) {
     this->val = l;
   }
@@ -306,7 +305,7 @@ public:
     this->decode(buf);
   }
   TagArray(std::istream &buf, std::string name) :
-  TagArray::Tag(name, type_name.el) {
+      TagArray::Tag(name, type_name.el) {
     this->decode(buf);
   }
 
