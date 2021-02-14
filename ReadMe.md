@@ -3,7 +3,7 @@
 This is a C++20 header-only library for reading/writing
 [Minecraft NBT](https://wiki.vg/NBT) data:
 * Single header file
-* Requires C++20 (GCC 10.1+, Clang trunk, VS 16.8.2+)
+* Requires C++20 (GCC 10.1+, Clang trunk, VS 16.9+)
 * Reads from `istream`s, writes to `ostream`s
 * Supports pretty printing
 
