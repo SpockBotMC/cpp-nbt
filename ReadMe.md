@@ -3,7 +3,7 @@
 This is a C++20 header-only library for reading/writing
 [Minecraft NBT](https://wiki.vg/NBT) data:
 * Single header file
-* Requires C++20 (GCC 10.1+, Clang trunk, VS 16.9+)
+* Requires C++20 (GCC 10.3+, Clang 12+, VS 16.9+)
 * Reads from `istream`s, writes to `ostream`s
 * Supports pretty printing
 
@@ -15,21 +15,23 @@ Include nbt.hpp, munch some data.
 #include "nbt.hpp"
 
 std::ifstream ifs("hello_world.nbt");
-auto tc = nbt::read_compound(ifs);
+auto tc {nbt::read_compound(ifs)};
 std::cout << tc;
 ```
 ## Tags
 
 All PC-edition NBT tags are supported, Bedrock is not currently supported.
 
-All tags have a `.val` member that maps to a STL container or fundamental type that can be easily manipulated. All tags inherit from `BaseTag`, which can be used to identify the derived tag.
+All tags have a `.val` member that maps to a STL container or fundamental type
+that can be easily manipulated. All tags inherit from `BaseTag`, which can be
+used to identify the derived tag.
 
 ### Constructing and Destructing Tags
 
 The most common method of interacting with NBT is to encode or decode a
 containing `TagCompound`. **cpp-nbt** supports two methods for this. This first
-is to use the convenience methods `TagCompound read_compound(std::istream&)` and
-`void write_compound(std::ostream&, TagCompound&)`.
+is to use the convenience methods `TagCompound read_compound(std::istream&)`
+and `void write_compound(std::ostream&, TagCompound&)`.
 
 Example Usage:
 ```C++
@@ -55,7 +57,8 @@ tc.encode_full(ofs);
 ```
 
 ### BaseTag
-`const std::uint8_t type_id` : The [Type ID](https://wiki.vg/NBT#Specification) of the tag, Type IDs are enum'd in all upper case
+`const std::uint8_t type_id` : The [Type ID](https://wiki.vg/NBT#Specification)
+of the tag, Type IDs are enum'd in all upper case
 
 Example Usage:
 ```C++
@@ -99,7 +102,8 @@ tags such as those contained inside `TagList`s
 
 ### Caveats
 
-* All the elements of a `TagList` should point to the same type of Tag. **cpp-nbt** will not stop you from encoding a malformed list.
+* All the elements of a `TagList` should point to the same type of Tag.
+**cpp-nbt** will not stop you from encoding a malformed list.
 
 * The keys of `TagCompound` have no effect on how it is encoded. The tags
 inside the `TagCompound` encode their names based on their `.name` member, not

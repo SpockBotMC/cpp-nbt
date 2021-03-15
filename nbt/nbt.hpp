@@ -48,7 +48,7 @@ inline auto bswap(std::uint16_t v) noexcept { return __builtin_bswap16(v); }
 
 #endif // _MSC_VER
 
-//I don't know why this is required but compiles sometimes fail without it
+// I don't know why this is required but compiles sometimes fail without it
 inline auto bswap(std::uint8_t v) noexcept { return v; }
 
 inline auto byteswap(std::integral auto val) noexcept {
@@ -70,15 +70,13 @@ inline auto nleswap(std::integral auto val) noexcept {
 }
 
 // Stupid hack because C++20 still doesn't have string literal template params
-template<int N> struct _FixedString {
-  constexpr _FixedString(char const (&s)[N]) {
-    std::copy_n(s, N, this->el);
+template<int N>
+struct FixedString {
+  constexpr FixedString(char const (&s)[N]) {
+    std::copy_n(s, N, el);
   }
-  constexpr bool operator==(_FixedString const&) const = default;
-  constexpr auto operator<=>(_FixedString const&) const = default;
   char el[N];
 };
-template<int N> _FixedString(char const(&)[N]) -> _FixedString<N>;
 
 // My tiny, crap version of pprint
 // But we barely need pprint at all, so we use this instead
@@ -116,13 +114,11 @@ public:
   }
 
 private:
-  void print_internal(auto value, size_t indent = 0,
-      const std::string &line_terminator = "\n") {
+  void print_internal(auto value, size_t indent = 0, const std::string& line_terminator = "\n") {
     stream_ << std::string(indent, ' ') << value << line_terminator;
   }
 
-  void print_internal(float value, size_t indent = 0,
-      const std::string &line_terminator = "\n") {
+  void print_internal(float value, size_t indent = 0, const std::string& line_terminator = "\n") {
     stream_ << std::string(indent, ' ') << value << 'f' << line_terminator;
   }
 };
@@ -150,11 +146,10 @@ public:
   const std::uint8_t tag_id;
   const std::string type_name;
 
-  BaseTag(const std::uint8_t id, const std::string type_name) :
-      tag_id(id), type_name(type_name) {}
-  BaseTag(const std::string name, const std::uint8_t id,
-      const std::string type_name) : name(name), tag_id(id),
-      type_name(type_name) {}
+  BaseTag(std::uint8_t id, const std::string& type_name) : tag_id(id), type_name(type_name) {}
+  BaseTag(const std::string& name, std::uint8_t id, const std::string& type_name) :
+      name(name), tag_id(id), type_name(type_name) {}
+
   virtual ~BaseTag() = default;
 
   virtual void encode(std::ostream &buf) const = 0;
@@ -172,35 +167,28 @@ inline std::ostream& operator<<(std::ostream &os, const BaseTag &b) {
 }
 
 
-template <typename T, int id>
+template <typename T, int id, FixedString type>
 class Tag : public BaseTag {
 public:
   T val;
-  // Pass type_name string as param because trying to pass _FixedString between
-  // templates is a no go. See: https://stackoverflow.com/q/62874007/1201456
-  Tag(const std::string type_name) : BaseTag(id, type_name) {}
-  Tag(const std::string name, const::std::string type_name) :
-      BaseTag(name, id, type_name) {}
-  Tag(const T val, const std::string name, const::std::string type_name) :
-      BaseTag(name, id, type_name), val(val) {}
+  Tag() : BaseTag(id, type.el) {}
+  virtual ~Tag() = default;
+
+  Tag(std::conditional_t<std::is_same_v<T, std::string>, T, T&> val) : BaseTag(id, type.el), val(val) {}
+  Tag(const std::string& name) : BaseTag(name, id, type.el) {}
+  Tag(const T& val, const std::string& name) : BaseTag(name, id, type.el), val(val) {}
 };
 
 
-template <std::integral Integral, std::uint8_t id, _FixedString type_name>
-class TagIntegral : public Tag<Integral, id> {
+template <std::integral Integral, std::uint8_t id, FixedString type>
+class TagIntegral : public Tag<Integral, id, type> {
 public:
-  TagIntegral() : TagIntegral::Tag(type_name.el) {}
-  TagIntegral(std::string name) : TagIntegral::Tag(name, type_name.el) {}
-  TagIntegral(Integral val, std::string name) :
-      TagIntegral::Tag(val, name, type_name.el) {}
-  TagIntegral(Integral val) : TagIntegral::Tag(type_name.el) {
-    this->val = val;
-  }
-  TagIntegral(std::istream &buf) : TagIntegral::Tag(type_name.el) {
+  using TagIntegral::Tag::Tag;
+
+  TagIntegral(std::istream &buf) : TagIntegral::Tag() {
     this->decode(buf);
   }
-  TagIntegral(std::istream &buf, std::string name) :
-      TagIntegral::Tag(name, type_name.el) {
+  TagIntegral(std::istream &buf, const std::string& name) : TagIntegral::Tag(name) {
     this->decode(buf);
   }
 
@@ -216,7 +204,7 @@ public:
 
   void print(NbtPrinter &pr, int pr_inline = 0) const {
     std::string str;
-    if(this->name.has_value())
+    if(this->name)
       str = this->type_name + "('" + this->name.value() + "'): " +
           std::to_string(this->val);
     else
@@ -234,22 +222,15 @@ typedef TagIntegral<std::int32_t, TAG_INT, "TagInt"> TagInt;
 typedef TagIntegral<std::int64_t, TAG_LONG, "TagLong"> TagLong;
 
 
-template <std::floating_point Decimal, std::uint8_t id, _FixedString type_name>
-class TagDecimal : public Tag<Decimal, id> {
+template <std::floating_point Decimal, std::uint8_t id, FixedString type>
+class TagDecimal : public Tag<Decimal, id, type> {
 public:
+  using TagDecimal::Tag::Tag;
 
-  TagDecimal() : TagDecimal::Tag(type_name.el) {}
-  TagDecimal(std::string name) : TagDecimal::Tag(name, type_name.el) {}
-  TagDecimal(Decimal val, std::string name) :
-      TagDecimal::Tag(val, name, type_name.el) {}
-  TagDecimal(Decimal val) : TagDecimal::Tag(type_name.el) {
-    this->val = val;
-  }
-  TagDecimal(std::istream &buf) : TagDecimal::Tag(type_name.el) {
+  TagDecimal(std::istream &buf) : TagDecimal::Tag() {
     this->decode(buf);
   }
-  TagDecimal(std::istream &buf, std::string name) :
-      TagDecimal::Tag(name, type_name.el) {
+  TagDecimal(std::istream &buf, const std::string& name) : TagDecimal::Tag(name) {
     this->decode(buf);
   }
 
@@ -271,7 +252,7 @@ public:
 
   void print(NbtPrinter &pr, int pr_inline = 0) const {
     std::string str;
-    if(this->name.has_value())
+    if(this->name)
       str = this->type_name + "('" + this->name.value() + "'): " +
           std::to_string(this->val);
     else
@@ -287,26 +268,20 @@ typedef TagDecimal<float, TAG_FLOAT, "TagFloat"> TagFloat;
 typedef TagDecimal<double, TAG_DOUBLE, "TagDouble"> TagDouble;
 
 
-template <std::integral T, std::uint8_t id, _FixedString type_name>
-class TagArray : public Tag<std::vector<T>, id> {
+template <std::integral T, std::uint8_t id, FixedString type>
+class TagArray : public Tag<std::vector<T>, id, type> {
 public:
+  using TagArray::Tag::Tag;
 
-  TagArray() : TagArray::Tag(type_name.el) {}
-  TagArray(std::string name) : TagArray::Tag(name, type_name.el) {}
-  TagArray(std::vector<T> val, std::string name) :
-      TagArray::Tag(val, name, type_name.el) {}
-  TagArray(std::initializer_list<T> l) : TagArray::Tag(type_name.el) {
+  TagArray(std::istream &buf) : TagArray::Tag() {
+    this->decode(buf);
+  }
+  TagArray(std::istream &buf, const std::string& name) : TagArray::Tag(name) {
+    this->decode(buf);
+  }
+
+  TagArray(std::initializer_list<T> l) : TagArray::Tag() {
     this->val = l;
-  }
-  TagArray(std::vector<T> val) : TagArray::Tag(type_name.el) {
-    this->val = val;
-  }
-  TagArray(std::istream &buf) : TagArray::Tag(type_name.el) {
-    this->decode(buf);
-  }
-  TagArray(std::istream &buf, std::string name) :
-      TagArray::Tag(name, type_name.el) {
-    this->decode(buf);
   }
 
   void decode(std::istream &buf) {
@@ -358,7 +333,7 @@ typedef TagArray<std::int32_t, TAG_INT_ARRAY, "TagIntArray"> TagIntArray;
 typedef TagArray<std::int64_t, TAG_LONG_ARRAY, "TagLongArray"> TagLongArray;
 
 inline void write_string(std::ostream &buf, const std::string &str) {
-  std::uint16_t len = nbeswap(static_cast<std::uint16_t>(str.size()));
+  std::uint16_t len {nbeswap(static_cast<std::uint16_t>(str.size()))};
   buf.write(reinterpret_cast<char *>(&len), sizeof(len));
   buf.write(str.data(), str.size());
 }
@@ -367,20 +342,26 @@ inline std::string read_string(std::istream &buf) {
     std::uint16_t len;
     buf.read(reinterpret_cast<char *>(&len), sizeof(len));
     len = nbeswap(len);
-    auto tmp = std::make_unique<char[]>(len);
-    buf.read(tmp.get(), len);
-    return std::string(tmp.get(), len);
+    std::string str(len, '\0');
+    buf.read(&str[0], len);
+    return str;
 }
 
-class TagString : public Tag<std::string, TAG_STRING> {
+class TagString : public Tag<std::string, TAG_STRING, "TagString"> {
 public:
-  TagString() : Tag("TagString") {}
-  TagString(std::string name) : Tag(name, "TagString") {}
-  TagString(std::string val, std::string name) : Tag(val, name, "TagString") {}
-  TagString(std::istream &buf) : Tag("TagString") {
+  TagString(const std::string& val) : TagString::Tag() {
+    this->val = val;
+  }
+  TagString(const std::string& val, const std::string& name) : TagString::Tag() {
+    this->val = val;
+    this->name = name;
+  }
+
+  TagString(std::istream &buf) : TagString::Tag() {
     this->decode(buf);
   }
-  TagString(std::istream &buf, std::string name) : Tag(name, "TagString") {
+  TagString(std::istream &buf, const std::string& name) : TagString::Tag() {
+    this->name = name;
     this->decode(buf);
   }
 
@@ -406,24 +387,34 @@ public:
   }
 };
 
-class TagList : public Tag<std::vector<std::unique_ptr<BaseTag>>, TAG_LIST> {
+class TagList : public Tag<std::vector<std::unique_ptr<BaseTag>>, TAG_LIST, "TagList"> {
 public:
   uint8_t list_id;
-  TagList() : Tag("TagList") {}
-  TagList(std::string name) : Tag(name, "TagList") {}
-  TagList(std::istream &buf) : Tag("TagList") {
+
+  TagList() : TagList::Tag() {}
+  TagList(const std::string& name) : TagList::Tag(name) {}
+
+  TagList(std::istream &buf) : TagList::Tag() {
     this->decode(buf);
   }
-  TagList(std::istream &buf, std::string name) : Tag(name, "TagList") {
+  TagList(std::istream &buf, const std::string& name) : TagList::Tag(name) {
     this->decode(buf);
   }
-  TagList(const TagList &other) : Tag("TagList") {
+
+  TagList(const TagList &other) : TagList::Tag() {
     *this = other;
   }
   TagList& operator=(const TagList& other);
 
   void decode(std::istream &buf);
-  void encode(std::ostream &buf) const;
+
+  void encode(std::ostream &buf) const {
+    buf.put(list_id);
+    std::int32_t len = nbeswap(static_cast<std::int32_t>(this->val.size()));
+    buf.write(reinterpret_cast<char *>(&len), sizeof(len));
+    for(auto &el : this->val)
+      el->encode(buf);
+  }
 
   void print(NbtPrinter &pr, int pr_inline = 0) const {
     auto str = std::string(this->type_name + "('" + this->name.value_or("") +
@@ -450,17 +441,19 @@ public:
 };
 
 class TagCompound : public Tag
-<std::unordered_map<std::string, std::unique_ptr<BaseTag>>, TAG_COMPOUND> {
+<std::unordered_map<std::string, std::unique_ptr<BaseTag>>, TAG_COMPOUND, "TagCompound"> {
 public:
-  TagCompound() : Tag("TagCompound") {}
-  TagCompound(std::string name) : Tag(name, "TagCompound") {}
-  TagCompound(std::istream &buf) : Tag("TagCompound") {
+  TagCompound() : TagCompound::Tag() {}
+  TagCompound(const std::string& name) : TagCompound::Tag(name) {}
+
+  TagCompound(std::istream &buf) : Tag() {
     this->decode(buf);
   }
-  TagCompound(std::istream &buf, std::string name) : Tag(name, "TagCompound") {
+  TagCompound(std::istream &buf, const std::string& name) : TagCompound::Tag(name) {
     this->decode(buf);
   }
-  TagCompound(const TagCompound &other) : Tag("TagCompound") {
+
+  TagCompound(const TagCompound &other) : Tag() {
     *this = other;
   }
 
