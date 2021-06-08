@@ -279,11 +279,11 @@ void encode_array(std::ostream& buf, const std::vector<T>& vec) {
 
 void print_array(std::ostream& os, const auto& vec) {
   os << "{";
-  if(const size_t size {vec.size()}; size) {
+  if(const int size {static_cast<int>(vec.size())}; size) {
     os << +vec[0];
-    for(int i {1}; i < std::min(static_cast<int>(size), 3); i++)
+    for(int i {1}; i < (size < 7 ? size : 3); i++)
       os << ", " << +vec[i];
-    if(size > 3)
+    if(size > 7)
       os << ", and " << size - 3 << " more";
   }
   os << "}";
@@ -350,9 +350,9 @@ inline TagList decode_list(std::istream& buf) {
 
 #define X(enum, type, base_type)                                              \
   case(enum): {                                                               \
-    std::vector<TagByteArray> vec(len);                                       \
+    std::vector<type> vec(len);                                               \
     for(auto& val : vec)                                                      \
-      val = decode_array<TagByte>(buf);                                       \
+      val = decode_array<base_type>(buf);                                     \
     return vec;                                                               \
   };
       ALL_ARRAYS(X)
@@ -423,12 +423,12 @@ inline void print_list(
 
   switch(list.index()) {
     case TAG_END:
-      os << "TagEnd> {";
+      os << "TagEnd> {}";
       break;
 
 #define X(enum, type)                                                         \
   case enum: {                                                                \
-    os << #type ">";                                                          \
+    os << #type "> ";                                                         \
     auto& vec {get_list<type>(list)};                                         \
     print_array(os, vec);                                                     \
   } break;
@@ -446,7 +446,7 @@ inline void print_list(
         os << ",\n" << next_indent;                                           \
         print_array(os, vec[i]);                                              \
       }                                                                       \
-      os << "\n" << indent;                                                   \
+      os << "\n" << indent << "}";                                            \
     }                                                                         \
   } break;
       ALL_ARRAYS(X)
@@ -459,7 +459,7 @@ inline void print_list(
         os << "\n" << next_indent << "\"" << vec[0] << "\"";
         for(size_t i {1}; i < size; i++)
           os << ",\n" << next_indent << "\"" << vec[i] << "\"";
-        os << "\n" << indent;
+        os << "\n" << indent << "}";
       }
     } break;
 
@@ -473,7 +473,7 @@ inline void print_list(
           os << ",\n" << next_indent;
           print_list(os, next_indent, vec[i]);
         }
-        os << "\n" << indent;
+        os << "\n" << indent << "}";
       }
     } break;
 
@@ -487,11 +487,10 @@ inline void print_list(
           os << ",\n" << next_indent;
           print_compound(os, next_indent, vec[i]);
         }
-        os << "\n" << indent;
+        os << "\n" << indent << "}";
       }
     } break;
   }
-  os << "}";
 }
 
 inline TagCompound decode_compound(std::istream& buf) {

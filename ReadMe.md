@@ -3,7 +3,7 @@
 This is a C++20 header-only library for reading/writing
 [Minecraft NBT](https://wiki.vg/NBT) data:
 * Single header file
-* Requires C++20 (GCC 10.3+, Clang 12+, VS 16.9+)
+* Requires C++20 (GCC 11, Clang 12, VS 16.9)
 * Reads from `istream`s, writes to `ostream`s
 * Supports pretty printing
 
@@ -53,7 +53,7 @@ just use the member variable directly.
 
 Java edition NBT root nodes are always either a TagEnd, or a named TagCompound.
 These two root nodes are encapsulated by the `NBT` type, which has an
-`encode()` and a `decode()` member to serialize and deserialize NBT.
+`encode()` and `decode()` methods to serialize and deserialize NBT.
 
 Example Usage:
 ```cpp
