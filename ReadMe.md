@@ -11,103 +11,102 @@ This is a C++20 header-only library for reading/writing
 
 Include nbt.hpp, munch some data.
 
-```C++
+```cpp
 #include "nbt.hpp"
 
-std::ifstream ifs("hello_world.nbt");
-auto tc {nbt::read_compound(ifs)};
-std::cout << tc;
+std::ifstream ifs {"hello_world.nbt"};
+nbt::NBT root {ifs};
+std::cout << root;
 ```
+
 ## Tags
 
 All PC-edition NBT tags are supported, Bedrock is not currently supported.
 
-All tags have a `.val` member that maps to a STL container or fundamental type
-that can be easily manipulated. All tags inherit from `BaseTag`, which can be
-used to identify the derived tag.
+Most tags map directly to primitive types, the remainder map to STL containers.
+
+| Tag Type | Description |
+| --- | --- |
+| `TagEnd` | `typedef std::nullptr_t` |
+| `TagByte` | `typedef std::int8_t` |
+| `TagShort` | `typedef std::int16_t` |
+| `TagInt` | `typedef std::int32_t` |
+| `TagLong` | `typdef std::int64_t` |
+| `TagFloat` | `typedef float` |
+| `TagDouble` | `typedef double` |
+| `TagByteArray` | `typedef std::vector<TagByte>` |
+| `TagIntArray` | `typedef std::vector<TagInt>` |
+| `TagLongArray` | `typedef std::vector<TagLong>` |
+| `TagString` | `typedef std::string` |
+| `TagList` | Thin wrapper around `std::variant<[vectors of all tags]>` |
+| `Tag` | `std::variant<[all tags]>` |
+| `TagCompound | Thin wrapper around `std::map<std::string, Tag>`|
+| `NBT` | Class with two members, `std::optional<std::string> name` and `TagCompund tag` |
+
+The underlying variant and map of `TagList` and `TagCompound` can be access
+directly using their `.base` member variable. Some operators and constructors
+have been mirrored for convenience, but if you need anything fancy from the STL
+just use the member variable diectly.
+
 
 ### Constructing and Destructing Tags
 
-The most common method of interacting with NBT is to encode or decode a
-containing `TagCompound`. **cpp-nbt** supports two methods for this. This first
-is to use the convenience methods `TagCompound read_compound(std::istream&)`
-and `void write_compound(std::ostream&, TagCompound&)`.
+Java edition NBT root nodes are always either a TagEnd, or a named TagCompound.
+These two root nodes are encapsulated by the `NBT` type, which has an
+`encode()` and a `decode()` member to serialize and deserialize NBT.
 
 Example Usage:
-```C++
-std::ifstream ifs("hello_world.nbt");
-auto tc = nbt::read_compound(ifs);
+```cpp
+std::ifstream ifs {"hello_world.nbt"};
+nbt::NBT root;
+root.decode(ifs);
+// Optionally, use the constructor
+// nbt::NBT root {ifs};
 
-std::ofstream ofs("out.nbt");
-nbt::write_compound(ofs, tc);
+
+std::ofstream ofs {"out.nbt"};
+root.encode(ofs);
 ```
 
-You can also use the `TagCompound` methods `.decode_full(std::istream&)` and
-`.encode_full(std::ostream&)`.
+### Manipulating Tags
 
-Example Usage:
-```C++
-nbt::TagCompound tc;
+Tags must exist inside a container type, and manipulating NBT containers
+involves standard usage of the STL.
 
-std::ifstream ifs("hello_world.nbt");
-tc.decode_full(ifs);
+```cpp
+nbt::NBT root {"LyricalNBT", {
+  {"Hello", nbt::TagString {"World"}},
+  {"Lyrics", nbt::TagList {
+    std::vector<nbt::TagString> {
+      "There's", "a", "song", "that", "we're", "singing",
+    },
+  },},
+}};
 
-std::ofstream ofs("out.nbt");
-tc.encode_full(ofs);
+root.tag["LuckyNumbers"] = nbt::TagByteArray {1, 3, 7, 9, 13, 15};
+std::get<nbt::TagByteArray>(root.tag["LuckyNumbers"]).push_back(21);
+
+std::cout << std::get<nbt::TagString>(root.tag["Hello"]) << std::endl;
+
+std::cout << root << std::endl;
 ```
 
-### BaseTag
-`const std::uint8_t type_id` : The [Type ID](https://wiki.vg/NBT#Specification)
-of the tag, Type IDs are enum'd in all upper case
+Note that every time a Tag is added to a TagCompound it should have its type
+specified in order to remove ambiguity. Similarly, `std::get` must be used to
+get references to types inside the TagCompound, since the standard `Tag` is a
+variant.
 
-Example Usage:
-```C++
-void f(BaseTag &tag) {
-  switch(tag.tag_id) {
-    case TAG_FLOAT:
-      std::cout << "Float is: " << dynamic_cast<nbt::TagFloat&>(tag).val;
-      break;
-    case TAG_LONG:
-      std::cout << "Long is: " << dynamic_cast<nbt::TagLong&>(tag).val;
-      break;
-    }
-}
+A convenience method, `get_list<>` is available for extracting the vector out
+of a TagList.
+
+```cpp
+std::TagList& tag {std::get<TagList>(root['lyrics'])};
+std::vector<nbt::TagString>& lyrics {nbt::get_list<TagString>(tag)};
+
+for(const std::string& word : lyrics)
+  std::cout << word << " ";
 ```
 
-`const std::string type_name`: String of the Type ID
-
-Example Usage:
-```C++
-nbt::TagDouble x;
-std::cout << x.type_name;
-```
-Outputs: "TagDouble"
-
-`std::optional<std::string> name`: Name of the Tag, has no value for nameless
-tags such as those contained inside `TagList`s
-
-### Derived Tags `.val`s
-
-* `TagByte` -> `std::int8_t`
-* `TagShort` -> `std::int16_t`
-* `TagInt`   -> `std::int32_t`
-* `TagLong` -> `std::int64_t`
-* `TagFloat` -> `float`
-* `TagDouble` -> `double`
-* `TagByteArray` -> `std::vector<std::int8_t>`
-* `TagIntArray` -> `std::vector<std::int32_t>`
-* `TagLongArray` -> `std::vector<std::int64_t>`
-* `TagList` -> `std::vector<std::unique_ptr<BaseTag>>`
-* `TagCompound` -> `std::unordered_map<std::string, std::unique_ptr<BaseTag>>`
-
-### Caveats
-
-* All the elements of a `TagList` should point to the same type of Tag.
-**cpp-nbt** will not stop you from encoding a malformed list.
-
-* The keys of `TagCompound` have no effect on how it is encoded. The tags
-inside the `TagCompound` encode their names based on their `.name` member, not
-the key.
 
 ## Issues
 

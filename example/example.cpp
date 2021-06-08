@@ -1,23 +1,29 @@
-#include <iostream>
 #include "nbt.hpp"
 #include "zstr.hpp"
+#include <iostream>
 
 int main(void) {
-  std::ifstream infile("hello_world.nbt");
-  auto tc = nbt::read_compound(infile);
-  std::cout << tc;
-  infile.close();
+  std::ifstream ifs {"hello_world.nbt"};
+  nbt::NBT tags {ifs};
+  std::cout << tags << std::endl;
+  ifs.close();
 
-  zstr::ifstream zin("bigtest.nbt");
-  tc.decode_full(zin);
-  std::cout << tc;
+  zstr::ifstream zfs {"bigtest.nbt"};
+  tags.decode(zfs);
+  std::cout << tags << std::endl;
 
-  std::ofstream outfile("out.nbt");
-  tc.encode_full(outfile);
-  outfile.close();
+  std::ofstream ofs {"out.nbt"};
+  tags.name = "Even More Test";
+  tags.tag["intArrayTest"] = nbt::TagIntArray {0, 1, 2, 3, 4};
+  tags.tag["longArrayTest"] = nbt::TagLongArray {5, 6, 7, 8};
+  tags.tag["funBlockGame"] = nbt::TagCompound {
+      {"a", nbt::TagDouble {0.1}},
+      {"b", nbt::TagFloat {0.2}},
+      {"c", nbt::TagString {"Minecraft"}},
+  };
+  tags.encode(ofs);
 
-  infile.open("out.nbt");
-  tc.decode_full(infile);
-  std::cout << tc;
-  infile.close();
+  ifs.open("out.nbt");
+  tags.decode(ifs);
+  std::cout << tags << std::endl;
 }
