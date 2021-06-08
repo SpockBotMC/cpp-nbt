@@ -82,6 +82,15 @@ typedef std::variant<TagEnd, TagByte, TagShort, TagInt, TagLong, TagFloat,
     Tag;
 
 
+namespace detail {
+void print_list(
+    std::ostream& os, const std::string& indent, const TagList& list);
+
+void print_compound(
+    std::ostream& os, const std::string& indent, const TagCompound& map);
+} // namespace detail
+
+
 struct TagList {
   TagList() = default;
   TagList(const auto& base) : base {base} {};
@@ -108,7 +117,10 @@ struct TagList {
   }
 
 private:
-  friend std::ostream& operator<<(std::ostream& os, const TagList& val);
+  friend std::ostream& operator<<(std::ostream& os, const TagList& tag) {
+    detail::print_list(os, "", tag);
+    return os;
+  }
 };
 
 template <typename T> const std::vector<T>& get_list(const TagList& list) {
@@ -137,7 +149,10 @@ struct TagCompound {
   }
 
 private:
-  friend std::ostream& operator<<(std::ostream& os, const TagList& val);
+  friend std::ostream& operator<<(std::ostream& os, const TagCompound& tag) {
+    detail::print_compound(os, "", tag);
+    return os;
+  }
 };
 
 struct NBT {
@@ -162,7 +177,10 @@ struct NBT {
   }
 
 private:
-  friend std::ostream& operator<<(std::ostream& os, const NBT& val);
+  friend std::ostream& operator<<(std::ostream& os, const NBT& val) {
+    os << "\"" << (val.name ? *val.name : "") << "\"\n" << val.tag;
+    return os;
+  }
 };
 
 
@@ -593,20 +611,7 @@ inline void print_compound(
 
 } // namespace detail
 
-
-std::ostream& operator<<(std::ostream& os, const TagList& tag) {
-  detail::print_list(os, "", tag);
-  return os;
-}
-
-
-std::ostream& operator<<(std::ostream& os, const TagCompound& tag) {
-  detail::print_compound(os, "", tag);
-  return os;
-}
-
-
-void NBT::decode(std::istream& buf) {
+inline void NBT::decode(std::istream& buf) {
   TagByte type {nbt::detail::decode<TagByte>(buf)};
   if(type == TAG_COMPOUND) {
     name = detail::decode_string(buf);
@@ -615,18 +620,13 @@ void NBT::decode(std::istream& buf) {
     throw std::runtime_error {"invalid tag type"};
 }
 
-void NBT::encode(std::ostream& buf) const {
+inline void NBT::encode(std::ostream& buf) const {
   if(!name && tag.base.empty())
     detail::encode<TagByte>(buf, TAG_END);
   else {
     detail::encode<TagByte>(buf, TAG_COMPOUND);
     detail::encode_string(buf, name ? *name : "");
   }
-}
-
-std::ostream& operator<<(std::ostream& os, const NBT& val) {
-  os << "\"" << (val.name ? *val.name : "") << "\"\n" << val.tag;
-  return os;
 }
 
 } // namespace nbt

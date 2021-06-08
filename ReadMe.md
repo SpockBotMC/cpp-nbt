@@ -40,13 +40,13 @@ Most tags map directly to primitive types, the remainder map to STL containers.
 | `TagString` | `typedef std::string` |
 | `TagList` | Thin wrapper around `std::variant<[vectors of all tags]>` |
 | `Tag` | `std::variant<[all tags]>` |
-| `TagCompound | Thin wrapper around `std::map<std::string, Tag>`|
-| `NBT` | Class with two members, `std::optional<std::string> name` and `TagCompund tag` |
+| `TagCompound` | Thin wrapper around `std::map<std::string, Tag>`|
+| `NBT` | Class with two members, `std::optional<std::string> name` and `TagCompound tag` |
 
 The underlying variant and map of `TagList` and `TagCompound` can be access
 directly using their `.base` member variable. Some operators and constructors
 have been mirrored for convenience, but if you need anything fancy from the STL
-just use the member variable diectly.
+just use the member variable directly.
 
 
 ### Constructing and Destructing Tags
