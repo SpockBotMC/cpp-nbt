@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.17)
 project(cpp-nbt CXX)
 
 if(MSVC)
-  set(WARNINGS /W4)
+  set(WARNINGS /W4;/WX)
 else()
   set(WARNINGS -Wall;-Wextra;-pedantic;-Werror;-Wno-unused-value)
 endif()
