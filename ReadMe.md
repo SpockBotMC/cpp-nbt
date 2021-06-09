@@ -1,5 +1,7 @@
 # cpp-nbt
 
+![build](https://github.com/SpockBotMC/cpp-nbt/actions/workflows/main.yml/badge.svg)
+
 This is a C++20 header-only library for reading/writing
 [Minecraft NBT](https://wiki.vg/NBT) data:
 * Single header file
@@ -94,7 +96,7 @@ A convenience method, `get_list<>` is available for extracting the vector out
 of a TagList.
 
 ```cpp
-auto& tag {root.at<nbt::TagList>('lyrics')};
+auto& tag {root.at<nbt::TagList>("lyrics")};
 std::vector<nbt::TagString>& lyrics {nbt::get_list<TagString>(tag)};
 
 for(const std::string& word : lyrics)

@@ -1,4 +1,4 @@
-name: Build
+name: build+tests
 
 on: [push, pull_request]
 
@@ -20,3 +20,6 @@ jobs:
 
       - name: Build
         run: cmake --build .
+
+      - name: Test
+        run: ctest -j5 -T test --output-on-failure
