@@ -1,0 +1,22 @@
+name: Build
+
+on: [push, pull_request]
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    container: archlinux:base-devel
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install Build Dependencies
+        run: |
+          pacman --noconfirm -Syu
+          pacman --noconfirm -S cmake ninja
+
+      - name: Configure
+        run: cmake . -G Ninja
+
+      - name: Build
+        run: cmake --build .

@@ -14,9 +14,9 @@ int main(void) {
 
   std::ofstream ofs {"out.nbt"};
   tags.name = "Even More Test";
-  tags.tag["intArrayTest"] = nbt::TagIntArray {0, 1, 2, 3, 4};
-  tags.tag["longArrayTest"] = nbt::TagLongArray {5, 6, 7, 8};
-  tags.tag["funBlockGame"] = nbt::TagCompound {
+  tags["intArrayTest"] = nbt::TagIntArray {0, 1, 2, 3, 4};
+  tags["longArrayTest"] = nbt::TagLongArray {5, 6, 7, 8};
+  tags["funBlockGame"] = nbt::TagCompound {
       {"a", nbt::TagDouble {0.1}},
       {"b", nbt::TagFloat {0.2}},
       {"c", nbt::TagString {"Minecraft"}},

@@ -144,8 +144,16 @@ struct TagCompound {
     return base[key];
   }
 
+  Tag& operator[](const char* key) {
+    return base[key];
+  }
+
   Tag& at(const std::string& key) {
     return base.at(key);
+  }
+
+  template <typename T> T& at(const std::string& key) {
+    return std::get<T>(base.at(key));
   }
 
 private:
@@ -155,30 +163,33 @@ private:
   }
 };
 
-struct NBT {
+struct NBT : public TagCompound {
   NBT() = default;
   NBT(std::istream& buf) {
     decode(buf);
   };
-  NBT(const TagCompound& tag) : tag {tag} {}
+  NBT(std::istream&& buf) {
+    decode(buf);
+  }
+  NBT(const TagCompound& tag) : TagCompound {tag} {}
   NBT(const std::string& name) : name {name} {}
   NBT(const std::string& name, const TagCompound& tag)
-      : name {name}, tag {tag} {}
+      : TagCompound {tag}, name {name} {}
 
   std::optional<std::string> name;
-  TagCompound tag;
 
   void decode(std::istream& buf);
 
   void encode(std::ostream& buf) const;
 
   operator bool() const {
-    return !name && tag.base.empty();
+    return !name && base.empty();
   }
 
 private:
   friend std::ostream& operator<<(std::ostream& os, const NBT& val) {
-    os << "\"" << (val.name ? *val.name : "") << "\"\n" << val.tag;
+    os << "\"" << (val.name ? *val.name : "") << "\"\n";
+    detail::print_compound(os, "", val);
     return os;
   }
 };
@@ -614,17 +625,18 @@ inline void NBT::decode(std::istream& buf) {
   TagByte type {nbt::detail::decode<TagByte>(buf)};
   if(type == TAG_COMPOUND) {
     name = detail::decode_string(buf);
-    tag = detail::decode_compound(buf);
+    base = detail::decode_compound(buf).base;
   } else if(type != TAG_END)
     throw std::runtime_error {"invalid tag type"};
 }
 
 inline void NBT::encode(std::ostream& buf) const {
-  if(!name && tag.base.empty())
+  if(!name && base.empty())
     detail::encode<TagByte>(buf, TAG_END);
   else {
     detail::encode<TagByte>(buf, TAG_COMPOUND);
     detail::encode_string(buf, name ? *name : "");
+    detail::encode_compound(buf, *this);
   }
 }
 

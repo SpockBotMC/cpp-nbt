@@ -14,8 +14,7 @@ Include nbt.hpp, munch some data.
 ```cpp
 #include "nbt.hpp"
 
-std::ifstream ifs {"hello_world.nbt"};
-nbt::NBT root {ifs};
+nbt::NBT root {std::ifstream {"hello_world.nbt"}};
 std::cout << root;
 ```
 
@@ -41,7 +40,7 @@ Most tags map directly to primitive types, the remainder map to STL containers.
 | `TagList` | Thin wrapper around `std::variant<[vectors of all tags]>` |
 | `Tag` | `std::variant<[all tags]>` |
 | `TagCompound` | Thin wrapper around `std::map<std::string, Tag>`|
-| `NBT` | Class with two members, `std::optional<std::string> name` and `TagCompound tag` |
+| `NBT` | A named `TagCompound` that can .encode/decode binary data |
 
 The underlying variant and map of `TagList` and `TagCompound` can be access
 directly using their `.base` member variable. Some operators and constructors
@@ -83,24 +82,19 @@ nbt::NBT root {"LyricalNBT", {
   },},
 }};
 
-root.tag["LuckyNumbers"] = nbt::TagByteArray {1, 3, 7, 9, 13, 15};
-std::get<nbt::TagByteArray>(root.tag["LuckyNumbers"]).push_back(21);
+root["LuckyNumbers"] = nbt::TagByteArray {1, 3, 7, 9, 13, 15};
+root.at<nbt::TagByteArray>("LuckyNumbers").push_back(21);
 
-std::cout << std::get<nbt::TagString>(root.tag["Hello"]) << std::endl;
+std::cout << root.at<nbt::TagString>("Hello") << std::endl;
 
 std::cout << root << std::endl;
 ```
-
-Note that every time a Tag is added to a TagCompound it should have its type
-specified in order to remove ambiguity. Similarly, `std::get` must be used to
-get references to types inside the TagCompound, since the standard `Tag` is a
-variant.
 
 A convenience method, `get_list<>` is available for extracting the vector out
 of a TagList.
 
 ```cpp
-std::TagList& tag {std::get<TagList>(root['lyrics'])};
+auto& tag {root.at<nbt::TagList>('lyrics')};
 std::vector<nbt::TagString>& lyrics {nbt::get_list<TagString>(tag)};
 
 for(const std::string& word : lyrics)
