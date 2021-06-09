@@ -181,6 +181,9 @@ struct NBT : public TagCompound {
   void decode(std::istream& buf);
 
   void encode(std::ostream& buf) const;
+  void encode(std::ostream&& buf) const {
+    encode(buf);
+  }
 
   operator bool() const {
     return !name && base.empty();

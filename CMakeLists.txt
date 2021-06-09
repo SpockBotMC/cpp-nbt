@@ -25,4 +25,4 @@ endfunction(setup_test)
 
 setup_test(numerics)
 setup_test(string)
-#setup_test(arrays)
+setup_test(arrays)
