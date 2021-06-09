@@ -23,3 +23,18 @@ jobs:
 
       - name: Test
         run: ctest -j5 -T test --output-on-failure
+
+  windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Configure
+        run: cmake .
+
+      - name: Build
+        run: cmake --build . --config Release
+
+      - name: Test
+        run: ctest -j5 -C Release -T test --output-on-failure
