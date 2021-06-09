@@ -21,7 +21,7 @@ int main() {
 
 
   std::stringstream good_buffer;
-  good_buffer << std::ifstream {"arrays.nbt", std::ios::binary}.rdbuf();
+  good_buffer << std::ifstream {"arrays.nbt"}.rdbuf();
 
   std::stringstream test_buffer;
   root.encode(test_buffer);

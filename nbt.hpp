@@ -179,6 +179,9 @@ struct NBT : public TagCompound {
   std::optional<std::string> name;
 
   void decode(std::istream& buf);
+  void decode(std::istream&& buf) {
+    decode(buf);
+  }
 
   void encode(std::ostream& buf) const;
   void encode(std::ostream&& buf) const {

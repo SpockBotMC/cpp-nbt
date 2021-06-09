@@ -1,6 +1,6 @@
 # cpp-nbt
 
-![build](https://github.com/SpockBotMC/cpp-nbt/actions/workflows/main.yml/badge.svg)
+[![build](https://github.com/SpockBotMC/cpp-nbt/actions/workflows/main.yml/badge.svg)](https://github.com/SpockBotMC/cpp-nbt/actions/workflows/main.yml)
 
 This is a C++20 header-only library for reading/writing
 [Minecraft NBT](https://wiki.vg/NBT) data:
@@ -58,15 +58,12 @@ These two root nodes are encapsulated by the `NBT` type, which has an
 
 Example Usage:
 ```cpp
-std::ifstream ifs {"hello_world.nbt"};
 nbt::NBT root;
-root.decode(ifs);
+root.decode(std::ifstream {"hello_world.nbt"});
 // Optionally, use the constructor
 // nbt::NBT root {ifs};
 
-
-std::ofstream ofs {"out.nbt"};
-root.encode(ofs);
+root.encode(std::ofstream {"out.nbt"});
 ```
 
 ### Manipulating Tags

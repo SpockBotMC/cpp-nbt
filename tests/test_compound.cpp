@@ -1,0 +1,33 @@
+#include <fstream>
+#include <sstream>
+
+#undef NDEBUG
+#include <cassert>
+
+#include "nbt.hpp"
+
+int main() {
+
+  nbt::TagCompound test_compound {};
+
+  nbt::NBT root {"Compound Test", {{"compound", test_compound}}};
+
+
+  std::stringstream good_buffer;
+  good_buffer << std::ifstream {"compound.nbt"}.rdbuf();
+
+  std::stringstream test_buffer;
+  root.encode(test_buffer);
+
+  assert(!good_buffer.str().compare(test_buffer.str()));
+
+
+  std::stringstream print_buffer;
+  print_buffer << root;
+  const std::string expected {"\"Compound Test\"\n"
+                              "<TagCompound> {\n"
+                              "  compound: <TagCompound> {}\n"
+                              "}"};
+
+  assert(("printed_compound", !expected.compare(print_buffer.str())));
+}

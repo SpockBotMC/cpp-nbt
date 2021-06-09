@@ -1,5 +1,4 @@
 #include <fstream>
-#include <iostream>
 #include <sstream>
 
 #undef NDEBUG
@@ -29,7 +28,7 @@ int main() {
 
 
   std::stringstream good_buffer;
-  good_buffer << std::ifstream {"numerics.nbt", std::ios::binary}.rdbuf();
+  good_buffer << std::ifstream {"numerics.nbt"}.rdbuf();
 
   std::stringstream test_buffer;
   root.encode(test_buffer);
