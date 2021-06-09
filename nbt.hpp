@@ -308,7 +308,7 @@ inline TagString decode_string(std::istream& buf) {
 }
 
 inline void encode_string(std::ostream& buf, const TagString& str) {
-  encode<TagShort>(buf, str.size());
+  encode<TagShort>(buf, static_cast<TagShort>(str.size()));
   buf.write(str.data(), str.size());
 }
 
@@ -387,7 +387,7 @@ inline TagList decode_list(std::istream& buf) {
 inline void encode_list(std::ostream& buf, const TagList& list) {
   if(list.base.valueless_by_exception())
     throw std::runtime_error {"invalid TagList"};
-  encode<TagByte>(buf, list.index());
+  encode<TagByte>(buf, static_cast<TagByte>(list.index()));
   switch(list.index()) {
     case TAG_END:
       encode<TagInt>(buf, 0);
@@ -396,7 +396,7 @@ inline void encode_list(std::ostream& buf, const TagList& list) {
 #define X(enum, type)                                                         \
   case enum: {                                                                \
     auto& vec {get_list<type>(list)};                                         \
-    encode<TagInt>(buf, vec.size());                                          \
+    encode<TagInt>(buf, static_cast<TagInt>(vec.size()));                     \
     for(const auto val : vec)                                                 \
       encode<type>(buf, val);                                                 \
   } break;
@@ -406,7 +406,7 @@ inline void encode_list(std::ostream& buf, const TagList& list) {
 #define X(enum, type, base_type)                                              \
   case enum: {                                                                \
     auto& vec {get_list<type>(list)};                                         \
-    encode<TagInt>(buf, vec.size());                                          \
+    encode<TagInt>(buf, static_cast<TagInt>(vec.size()));                     \
     for(const auto& val : vec)                                                \
       encode_array<base_type>(buf, val);                                      \
   } break;
@@ -539,7 +539,7 @@ inline TagCompound decode_compound(std::istream& buf) {
 
 inline void encode_compound(std::ostream& buf, const TagCompound& map) {
   for(const auto& [key, tag] : map.base) {
-    encode<TagByte>(buf, tag.index());
+    encode<TagByte>(buf, static_cast<TagByte>(tag.index()));
     encode_string(buf, key);
 
     switch(tag.index()) {

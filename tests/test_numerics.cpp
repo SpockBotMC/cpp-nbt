@@ -12,7 +12,7 @@ int main() {
   nbt::TagByte test_byte {1};
   nbt::TagShort test_short {1 << 8};
   nbt::TagInt test_int {1 << 16};
-  nbt::TagLong test_long {1L << 32};
+  nbt::TagLong test_long {1LL << 32};
 
   nbt::TagFloat test_float {0.1f};
   nbt::TagDouble test_double {0.2};
@@ -29,7 +29,7 @@ int main() {
 
 
   std::stringstream good_buffer;
-  good_buffer << std::ifstream {"numerics.nbt"}.rdbuf();
+  good_buffer << std::ifstream {"numerics.nbt", std::ios::binary}.rdbuf();
 
   std::stringstream test_buffer;
   root.encode(test_buffer);

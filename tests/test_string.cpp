@@ -16,7 +16,7 @@ int main() {
       }};
 
   std::stringstream good_buffer;
-  good_buffer << std::ifstream {"string.nbt"}.rdbuf();
+  good_buffer << std::ifstream {"string.nbt", std::ios::binary}.rdbuf();
 
   std::stringstream test_buffer;
   root.encode(test_buffer);
