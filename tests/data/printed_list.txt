@@ -22,6 +22,11 @@
       {8589934592},
       {12884901888}
     },
+    <TagList of TagString> {
+      "String #1",
+      "String #2",
+      "String #3"
+    },
     <TagList of TagCompound> {
       <TagCompound> {
         name: "Compound #1"

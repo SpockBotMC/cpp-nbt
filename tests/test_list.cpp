@@ -55,6 +55,11 @@ int main() {
           nbt::TagLongArray {3LL << 32},
       },
       {
+          "String #1",
+          "String #2",
+          "String #3",
+      },
+      {
           nbt::TagCompound {{"name", "Compound #1"}},
           nbt::TagCompound {{"name", "Compound #2"}},
           nbt::TagCompound {{"name", "Compound #3"}},
@@ -93,8 +98,8 @@ int main() {
   TEST(list_long_array, nbt::TagLongArray, 8);
 
 
-  const auto& dicts_a {nbt::get_list<nbt::TagCompound>(a[9])};
-  const auto& dicts_b {nbt::get_list<nbt::TagCompound>(b[9])};
+  const auto& dicts_a {nbt::get_list<nbt::TagCompound>(a[10])};
+  const auto& dicts_b {nbt::get_list<nbt::TagCompound>(b[10])};
 
   assert(("compound_list_length", dicts_a.size() == dicts_b.size()));
 
