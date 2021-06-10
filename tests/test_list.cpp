@@ -65,12 +65,11 @@ int main() {
 
   std::stringstream good_buffer;
   good_buffer << std::ifstream {"list.nbt"}.rdbuf();
-  std::string x {good_buffer.str()};
 
   std::stringstream test_buffer;
   root.encode(test_buffer);
 
-  assert(("binary_list", !good_buffer.str().compare(test_buffer.str())));
+  assert(("binary_list", good_buffer.str() == test_buffer.str()));
 
 
   nbt::NBT file {good_buffer};
@@ -104,4 +103,12 @@ int main() {
       assert(("compound_compare",
           std::get<nbt::TagString>(val) ==
               std::get<nbt::TagString>(dicts_b[i].at(key))));
+
+
+  std::stringstream print_buffer;
+  print_buffer << root;
+  std::stringstream good_print;
+  good_print << std::ifstream {"printed_list.txt"}.rdbuf();
+
+  assert(("printed_list", print_buffer.str() == good_print.str()));
 }

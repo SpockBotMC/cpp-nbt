@@ -19,7 +19,7 @@ int main() {
   std::stringstream test_buffer;
   root.encode(test_buffer);
 
-  assert(("binary_compound", !good_buffer.str().compare(test_buffer.str())));
+  assert(("binary_compound", good_buffer.str() == test_buffer.str()));
 
 
   std::stringstream print_buffer;
@@ -29,5 +29,5 @@ int main() {
                               "  compound: <TagCompound> {}\n"
                               "}"};
 
-  assert(("printed_compound", !expected.compare(print_buffer.str())));
+  assert(("printed_compound", expected == print_buffer.str()));
 }

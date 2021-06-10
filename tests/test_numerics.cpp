@@ -33,7 +33,7 @@ int main() {
   std::stringstream test_buffer;
   root.encode(test_buffer);
 
-  assert(("binary_numerics", !good_buffer.str().compare(test_buffer.str())));
+  assert(("binary_numerics", good_buffer.str() == test_buffer.str()));
 
 
   nbt::NBT file {good_buffer};
