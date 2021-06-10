@@ -1,6 +1,7 @@
 "List Test"
 <TagCompound> {
   list: <TagList of TagList> {
+    <TagList of TagEnd> {},
     <TagList of TagByte> {1, 2, 3},
     <TagList of TagShort> {256, 512, 768},
     <TagList of TagInt> {65536, 131072, 196608},

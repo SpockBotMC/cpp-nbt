@@ -21,6 +21,7 @@ int main() {
 
   assert(("binary_compound", good_buffer.str() == test_buffer.str()));
 
+  root.decode(test_buffer);
 
   std::stringstream print_buffer;
   print_buffer << root;

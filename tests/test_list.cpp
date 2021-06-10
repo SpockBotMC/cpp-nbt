@@ -9,7 +9,8 @@
 int main() {
 
   nbt::TagList test_list {
-      nbt::TagList {
+      nbt::TagList {nbt::TagEnd {}},
+      {
           nbt::TagByte {1},
           nbt::TagByte {2},
           nbt::TagByte {3},
@@ -87,19 +88,19 @@ int main() {
   assert((                                                                    \
       #name, nbt::get_list<type>(a[index]) == nbt::get_list<type>(b[index])))
 
-  TEST(list_byte, nbt::TagByte, 0);
-  TEST(list_short, nbt::TagShort, 1);
-  TEST(list_int, nbt::TagInt, 2);
-  TEST(list_long, nbt::TagLong, 3);
-  TEST(list_float, nbt::TagFloat, 4);
-  TEST(list_double, nbt::TagDouble, 5);
-  TEST(list_byte_array, nbt::TagByteArray, 6);
-  TEST(list_int_array, nbt::TagIntArray, 7);
-  TEST(list_long_array, nbt::TagLongArray, 8);
+  TEST(list_byte, nbt::TagByte, 1);
+  TEST(list_short, nbt::TagShort, 2);
+  TEST(list_int, nbt::TagInt, 3);
+  TEST(list_long, nbt::TagLong, 4);
+  TEST(list_float, nbt::TagFloat, 5);
+  TEST(list_double, nbt::TagDouble, 6);
+  TEST(list_byte_array, nbt::TagByteArray, 7);
+  TEST(list_int_array, nbt::TagIntArray, 8);
+  TEST(list_long_array, nbt::TagLongArray, 9);
 
 
-  const auto& dicts_a {nbt::get_list<nbt::TagCompound>(a[10])};
-  const auto& dicts_b {nbt::get_list<nbt::TagCompound>(b[10])};
+  const auto& dicts_a {nbt::get_list<nbt::TagCompound>(a[11])};
+  const auto& dicts_b {nbt::get_list<nbt::TagCompound>(b[11])};
 
   assert(("compound_list_length", dicts_a.size() == dicts_b.size()));
 
