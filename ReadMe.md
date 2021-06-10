@@ -1,6 +1,8 @@
 # cpp-nbt
 
 [![build](https://github.com/SpockBotMC/cpp-nbt/actions/workflows/main.yml/badge.svg)](https://github.com/SpockBotMC/cpp-nbt/actions/workflows/main.yml)
+[![license](https://img.shields.io/badge/license-zlib-lightgrey.svg)](https://en.wikipedia.org/wiki/Zlib_License)
+
 
 This is a C++20 header-only library for reading/writing
 [Minecraft NBT](https://wiki.vg/NBT) data:

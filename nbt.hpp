@@ -93,7 +93,9 @@ void print_compound(
 
 struct TagList {
   TagList() = default;
-  TagList(const auto& base) : base {base} {};
+  template <typename T> TagList(const std::vector<T>& base) : base {base} {}
+  template <typename T> TagList(std::initializer_list<T> lst)
+      : base {std::in_place_type<std::vector<T>>, lst} {}
 
   std::variant<std::vector<TagEnd>, std::vector<TagByte>,
       std::vector<TagShort>, std::vector<TagInt>, std::vector<TagLong>,
@@ -106,12 +108,7 @@ struct TagList {
     return base.index();
   }
 
-  TagList& operator=(const TagList& other) {
-    base = other.base;
-    return *this;
-  }
-
-  TagList& operator=(const auto& other) {
+  template <typename T> TagList& operator=(const std::vector<T>& other) {
     base = other;
     return *this;
   }

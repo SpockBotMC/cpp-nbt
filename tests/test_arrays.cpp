@@ -28,6 +28,22 @@ int main() {
 
   assert(!good_buffer.str().compare(test_buffer.str()));
 
+
+  nbt::NBT file {good_buffer};
+
+  assert(("test_byte_arry",
+      root.at<nbt::TagByteArray>("byte array") ==
+          file.at<nbt::TagByteArray>("byte array")));
+
+  assert(("test_int_array",
+      root.at<nbt::TagIntArray>("int array") ==
+          file.at<nbt::TagIntArray>("int array")));
+
+  assert(("test_long_array",
+      root.at<nbt::TagLongArray>("long array") ==
+          file.at<nbt::TagLongArray>("long array")));
+
+
   std::stringstream print_buffer;
   print_buffer << root;
   const std::string printed {print_buffer.str()};
