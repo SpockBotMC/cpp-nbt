@@ -140,12 +140,14 @@ struct TagCompound {
   Tag& operator[](const std::string& key) {
     return base[key];
   }
-
   Tag& operator[](const char* key) {
     return base[key];
   }
 
   Tag& at(const std::string& key) {
+    return base.at(key);
+  }
+  const Tag& at(const std::string& key) const {
     return base.at(key);
   }
 
@@ -415,6 +417,7 @@ inline void encode_list(std::ostream& buf, const TagList& list) {
 #define X(enum, type, ext)                                                    \
   case enum: {                                                                \
     auto& vec {get_list<type>(list)};                                         \
+    encode<TagInt>(buf, static_cast<TagInt>(vec.size()));                     \
     for(const auto& val : vec)                                                \
       encode##ext(buf, val);                                                  \
   } break;

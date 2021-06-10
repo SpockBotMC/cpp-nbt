@@ -19,7 +19,7 @@ int main() {
   std::stringstream test_buffer;
   root.encode(test_buffer);
 
-  assert(!good_buffer.str().compare(test_buffer.str()));
+  assert(("binary_compound", !good_buffer.str().compare(test_buffer.str())));
 
 
   std::stringstream print_buffer;
