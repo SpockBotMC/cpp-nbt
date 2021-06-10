@@ -1,6 +1,7 @@
 # cpp-nbt
 
 [![build](https://github.com/SpockBotMC/cpp-nbt/actions/workflows/main.yml/badge.svg)](https://github.com/SpockBotMC/cpp-nbt/actions/workflows/main.yml)
+[![codecov](https://codecov.io/gh/SpockBotMC/cpp-nbt/branch/master/graph/badge.svg?token=F2QJDOEJUV)](https://codecov.io/gh/SpockBotMC/cpp-nbt)
 [![license](https://img.shields.io/badge/license-zlib-lightgrey.svg)](https://en.wikipedia.org/wiki/Zlib_License)
 
 

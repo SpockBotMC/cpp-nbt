@@ -19,18 +19,18 @@ int main() {
   print_compound << tag_compound;
 
 
-  // NBT default constructor
-  nbt::NBT root;
+  // NBT default constructor and r-value empty encode
+  nbt::NBT {}.encode(std::ostringstream {});
 
-  // NBT name constructor
-  nbt::NBT {"NBT"};
+  // NBT name constructor and named empty encode
+  nbt::NBT {"NBT"}.encode(std::ostringstream {});
 
-  // NBT r-value reference constructor
-  nbt::NBT {std::ifstream {"compound.nbt"}};
+  // NBT r-value reference constructor and invalid tag exception
+  try {
+    nbt::NBT {std::istringstream {"not a tag"}};
+  } catch(std::exception&) {
+  }
 
   // NBT TagCompound constructor
   nbt::NBT {tag_compound};
-
-  // NBT empty encode and r-value encode
-  root.encode(std::stringstream {});
 }
