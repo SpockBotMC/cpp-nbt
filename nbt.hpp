@@ -96,6 +96,9 @@ struct TagList {
   template <typename T> TagList(const std::vector<T>& base) : base {base} {}
   template <typename T> TagList(std::initializer_list<T> lst)
       : base {std::in_place_type<std::vector<T>>, lst} {}
+  TagList(std::initializer_list<const char*> lst)
+      : base {std::in_place_type<std::vector<TagString>>, lst.begin(),
+            lst.end()} {}
 
   std::variant<std::vector<TagEnd>, std::vector<TagByte>,
       std::vector<TagShort>, std::vector<TagInt>, std::vector<TagLong>,

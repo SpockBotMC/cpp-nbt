@@ -75,12 +75,10 @@ involves standard usage of the STL.
 
 ```cpp
 nbt::NBT root {"LyricalNBT", {
-  {"Hello", nbt::TagString {"World"}},
+  {"Hello", "World"},
   {"Lyrics", nbt::TagList {
-    std::vector<nbt::TagString> {
       "There's", "a", "song", "that", "we're", "singing",
-    },
-  },},
+  }},
 }};
 
 root["LuckyNumbers"] = nbt::TagByteArray {1, 3, 7, 9, 13, 15};
