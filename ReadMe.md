@@ -35,7 +35,7 @@ Most tags map directly to primitive types, the remainder map to STL containers.
 | `TagByte` | `typedef std::int8_t` |
 | `TagShort` | `typedef std::int16_t` |
 | `TagInt` | `typedef std::int32_t` |
-| `TagLong` | `typdef std::int64_t` |
+| `TagLong` | `typedef std::int64_t` |
 | `TagFloat` | `typedef float` |
 | `TagDouble` | `typedef double` |
 | `TagByteArray` | `typedef std::vector<TagByte>` |
