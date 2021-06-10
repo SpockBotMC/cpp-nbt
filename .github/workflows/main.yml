@@ -16,13 +16,19 @@ jobs:
           pacman --noconfirm -S cmake ninja
 
       - name: Configure
-        run: cmake . -G Ninja
+        run: cmake . -G Ninja -D RUN_COVERAGE:BOOL=ON
 
       - name: Build
-        run: cmake --build . --config Release
+        run: cmake --build . --config Debug
 
       - name: Test
-        run: ctest -j5 -C Release -T test --output-on-failure
+        run: ctest -j5 -C Debug -T test --output-on-failure
+
+      - name: Upload Coverage
+        run: |
+          curl -s https://codecov.io/bash > upload.sh
+          chmod +x upload.sh
+          ./upload.sh -a "-r"
 
   windows:
     runs-on: windows-latest
