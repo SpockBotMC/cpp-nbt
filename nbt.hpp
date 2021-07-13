@@ -83,11 +83,11 @@ typedef std::variant<TagEnd, TagByte, TagShort, TagInt, TagLong, TagFloat,
 
 
 namespace detail {
-void print_list(
-    std::ostream& os, const std::string& indent, const TagList& list);
+void print_list(std::ostream& os, const std::string& indent,
+    const TagList& list);
 
-void print_compound(
-    std::ostream& os, const std::string& indent, const TagCompound& map);
+void print_compound(std::ostream& os, const std::string& indent,
+    const TagCompound& map);
 } // namespace detail
 
 
@@ -340,8 +340,8 @@ inline void encode_string(std::ostream& buf, const TagString& str) {
 
 TagCompound decode_compound(std::istream& buf);
 void encode_compound(std::ostream& buf, const TagCompound& map);
-void print_compound(
-    std::ostream& os, const std::string& indent, const TagCompound& map);
+void print_compound(std::ostream& os, const std::string& indent,
+    const TagCompound& map);
 
 inline TagList decode_list(std::istream& buf) {
   std::int8_t type {decode<TagByte>(buf)};
@@ -431,12 +431,8 @@ inline void encode_list(std::ostream& buf, const TagList& list) {
   }
 }
 
-inline void print_list(
-    std::ostream& os, const std::string& indent, const TagList& list) {
-  /*
-  if(list.base.valueless_by_exception())
-    throw std::runtime_error {"invalid TagList"};
-  */
+inline void print_list(std::ostream& os, const std::string& indent,
+    const TagList& list) {
 
   os << "<TagList of ";
   std::string next_indent {indent + indent_step};
@@ -580,8 +576,8 @@ inline void encode_compound(std::ostream& buf, const TagCompound& map) {
   encode<TagByte>(buf, 0);
 }
 
-inline void print_compound(
-    std::ostream& os, const std::string& indent, const TagCompound& map) {
+inline void print_compound(std::ostream& os, const std::string& indent,
+    const TagCompound& map) {
   os << "<TagCompound> {";
   std::string next_indent {indent + indent_step};
   bool first {true};

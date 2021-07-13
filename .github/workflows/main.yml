@@ -22,13 +22,12 @@ jobs:
         run: cmake --build . --config Debug
 
       - name: Test
-        run: ctest -j6 -C Debug -T test --output-on-failure
+        run: ctest -j6 -C Debug --output-on-failure
 
       - name: Upload Coverage
-        run: |
-          curl -s https://codecov.io/bash > upload.sh
-          chmod +x upload.sh
-          ./upload.sh -a "-r"
+        uses: codecov/codecov-action@v1
+        with:
+          gcov_args: -r
 
   windows:
     runs-on: windows-latest
