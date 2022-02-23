@@ -50,11 +50,11 @@ Most tags map directly to primitive types, the remainder map to STL containers.
 | `TagIntArray` | `std::vector<TagInt>` |
 | `TagLongArray` | `std::vector<TagLong>` |
 | `TagString` | `std::string` |
-| `TagList` | std::variant<std::vectors<TagEnd>, std::vector<TagByte>, and all other tags>` |
+| `TagList` | `std::variant<std::vectors<TagEnd>, std::vector<TagByte>, and all other tags>` |
 | `Tag` | `std::variant<TagEnd, TagByte, and all other tags>` |
 | `TagCompound` | `std::map<TagString, Tag>`|
-| `NBTData` | struct { TagString name; TagCompound tags; } |
-| `NBT` | struct {std::optional<NBTData> data; } |
+| `NBTData` | `struct { TagString name; TagCompound tags; }` |
+| `NBT` | `struct {std::optional<NBTData> data; }` |
 
 
 ### Constructing and Destructing Tags
