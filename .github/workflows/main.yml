@@ -1,7 +1,5 @@
 name: build+tests
 
-on: [push, pull_request]
-
 jobs:
   linux:
     runs-on: ubuntu-latest
