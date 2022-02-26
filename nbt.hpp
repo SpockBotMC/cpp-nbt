@@ -109,48 +109,15 @@ template <typename T> consteval std::string_view tag_name() {
     return "UnknownTag";
 }
 
-#if defined(_MSC_VER)
-
-inline auto bswap(std::uint64_t v) noexcept {
-  return _byteswap_uint64(v);
-}
-inline auto bswap(std::uint32_t v) noexcept {
-  return _byteswap_ulong(v);
-}
-inline auto bswap(std::uint16_t v) noexcept {
-  return _byteswap_ushort(v);
-}
-
-#else
-
-inline auto bswap(std::uint64_t v) noexcept {
-  return __builtin_bswap64(v);
-}
-inline auto bswap(std::uint32_t v) noexcept {
-  return __builtin_bswap32(v);
-}
-inline auto bswap(std::uint16_t v) noexcept {
-  return __builtin_bswap16(v);
-}
-
-#endif // _MSC_VER
-
-inline auto byteswap(std::integral auto val) noexcept {
-  if constexpr(sizeof(val) == 1)
-    return static_cast<std::make_unsigned_t<decltype(val)>>(val);
-  else
-    return bswap(static_cast<std::make_unsigned_t<decltype(val)>>(val));
-}
-
-inline auto nbeswap(std::integral auto val) noexcept {
+auto nbeswap(std::integral auto val) noexcept {
   if constexpr(std::endian::native == std::endian::big)
     return val;
   else
-    return byteswap(val);
+    return std::byteswap(val);
 }
 
 void encode(std::ostream& os, std::integral auto val) {
-  std::make_unsigned_t<decltype(val)> out {nbeswap(val)};
+  auto out {nbeswap(val)};
   os.write(reinterpret_cast<char*>(&out), sizeof(out));
 }
 
