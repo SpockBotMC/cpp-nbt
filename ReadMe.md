@@ -3,10 +3,10 @@
 [![license](https://img.shields.io/badge/license-zlib-lightgrey.svg)](https://en.wikipedia.org/wiki/Zlib_License)
 
 
-This is a C++20 header-only library for reading/writing
+This is a C++23 header-only library for reading/writing
 [Minecraft NBT](https://wiki.vg/NBT) data:
 * Single header file
-* Requires C++20 and [P2162](https://wg21.link/p2162) (GCC 13, Clang 14, MSVC 19.latest)
+* Requires C++23 (GCC 13, Clang 14, MSVC 19.latest)
 * Reads from `istream`s, writes to `ostream`s
 * Supports pretty printing
 
