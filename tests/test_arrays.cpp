@@ -32,29 +32,28 @@ int main() {
   nbt::NBT file {good_buffer};
 
   assert(("test_byte_arry",
-      root.at<nbt::TagByteArray>("byte array") ==
-          file.at<nbt::TagByteArray>("byte array")));
+      root.data->tags.at("byte array") == file.data->tags.at("byte array")));
 
   assert(("test_int_array",
-      root.at<nbt::TagIntArray>("int array") ==
-          file.at<nbt::TagIntArray>("int array")));
+      root.data->tags.at("int array") == file.data->tags.at("int array")));
 
   assert(("test_long_array",
-      root.at<nbt::TagLongArray>("long array") ==
-          file.at<nbt::TagLongArray>("long array")));
+      root.data->tags.at("long array") == file.data->tags.at("long array")));
 
 
   std::stringstream print_buffer;
   print_buffer << root;
+
   const std::string printed {print_buffer.str()};
 
   assert(("printed_byte_array",
-      printed.find("byte array: {0, 1, 2, 3}") != printed.npos));
+      printed.find("byte array: <TagByteArray> {0, 1, 2, 3}") != printed.npos));
 
   assert(("printed_int_array",
-      printed.find("int array: {0, 65536, 131072, 196608}") != printed.npos));
+      printed.find("int array: <TagIntArray> {0, 65536, 131072, 196608}") !=
+          printed.npos));
 
   assert(("printed_long_array",
-      printed.find("long array: {0, 4294967296, 8589934592, 12884901888}") !=
-          printed.npos));
+      printed.find("long array: <TagLongArray> {0, 4294967296, 8589934592, "
+                   "12884901888}") != printed.npos));
 }

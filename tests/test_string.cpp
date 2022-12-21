@@ -10,16 +10,18 @@ int main() {
 
   nbt::TagString test_string {"This is a string 🙂"};
 
-  nbt::NBT root {"String Test",
+  nbt::NBT nbt {
+      "String Test",
       {
           {"string", test_string},
-      }};
+      },
+  };
 
   std::stringstream good_buffer;
   good_buffer << std::ifstream {"string.nbt", std::ios::binary}.rdbuf();
 
   std::stringstream test_buffer;
-  root.encode(test_buffer);
+  nbt.encode(test_buffer);
 
   assert(("binary_string", good_buffer.str() == test_buffer.str()));
 
@@ -27,14 +29,18 @@ int main() {
   nbt::NBT file {good_buffer};
 
   assert(("test_string",
-      root.at<nbt::TagString>("string") == file.at<nbt::TagString>("string")));
+      nbt.data->tags.at("string") == file.data->tags.at("string")));
 
   std::stringstream print_buffer;
-  print_buffer << root;
-  const std::string expected {"\"String Test\"\n"
-                              "<TagCompound> {\n"
-                              "  string: \"This is a string 🙂\"\n"
-                              "}"};
+
+
+  print_buffer << nbt;
+
+  const std::string expected {
+      "\"String Test\"\n"
+      "<TagCompound> {\n"
+      "  string: <TagString> This is a string 🙂\n"
+      "}"};
 
   assert(("printed_string", expected == print_buffer.str()));
 }

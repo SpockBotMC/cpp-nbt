@@ -10,19 +10,18 @@
 int main() {
 
   // TagCompound store/get
-  nbt::TagCompound tag_compound;
-  tag_compound["Hello"] = "World";
-  const std::string key {"Hello"};
-  assert(std::get<nbt::TagString>(tag_compound[key]) ==
-      std::get<nbt::TagString>(tag_compound.at(key)));
+  nbt::TagCompound tag_compound {
+      {"Hello", "World"},
+  };
 
   std::ostringstream {} << tag_compound;
 
-  // NBT default constructor and r-value empty encode
-  nbt::NBT {}.encode(std::ostringstream {});
+  // NBT default constructor
+  std::ostringstream os {};
+  nbt::NBT {}.encode(os);
 
   // NBT name constructor and named empty encode
-  nbt::NBT {"NBT"}.encode(std::ostringstream {});
+  nbt::NBT {"NBT"}.encode(os);
 
   // NBT r-value reference constructor and invalid tag exception
   try {
@@ -48,7 +47,7 @@ int main() {
 
   try {
     std::stringstream os {};
-    nbt::detail::encode_compound(os, invalid);
+    nbt::detail::encode(os, invalid);
   } catch(std::exception&) {
   }
 
@@ -60,7 +59,7 @@ int main() {
   std::stringstream invalid_buf {};
 
   nbt::detail::encode<nbt::TagByte>(invalid_buf, nbt::TAG_COMPOUND);
-  nbt::detail::encode_string(invalid_buf, "invalid_nbt");
+  nbt::detail::encode<nbt::TagString>(invalid_buf, "invalid_nbt");
   nbt::detail::encode<nbt::TagByte>(invalid_buf, -1);
   nbt::detail::encode<nbt::TagByte>(invalid_buf, nbt::TAG_END);
 
@@ -72,7 +71,7 @@ int main() {
   std::stringstream multi_TagEnd_list {};
   nbt::detail::encode<nbt::TagByte>(multi_TagEnd_list, nbt::TAG_END);
   nbt::detail::encode<nbt::TagInt>(multi_TagEnd_list, 10);
-  nbt::TagList end_list {nbt::detail::decode_list(multi_TagEnd_list)};
+  nbt::TagList end_list {nbt::detail::decode<nbt::TagList>(multi_TagEnd_list)};
 
   std::stringstream invalid_list_buf {};
 
@@ -80,12 +79,7 @@ int main() {
   nbt::detail::encode<nbt::TagInt>(invalid_list_buf, 10);
 
   try {
-    nbt::detail::decode_list(invalid_list_buf);
+    nbt::detail::decode<nbt::TagList>(invalid_list_buf);
   } catch(std::exception&) {
   }
-
-  std::ostringstream {} << nbt::TagList {};
-
-  std::ostringstream array_out {};
-  nbt::detail::print_array(array_out, std::vector {1, 2, 3, 4, 5, 6, 7, 8, 9});
 };

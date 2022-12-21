@@ -81,7 +81,9 @@ typedef NBT_MAP_TYPE<TagString, Tag> TagCompound;
 namespace detail {
 
 template <typename T> consteval std::string_view tag_name() {
-  if constexpr(std::same_as<T, TagByte>)
+  if constexpr(std::same_as<T, TagEnd>)
+    return "TagEnd";
+  else if constexpr(std::same_as<T, TagByte>)
     return "TagByte";
   else if constexpr(std::same_as<T, TagShort>)
     return "TagShort";
@@ -172,7 +174,10 @@ template <typename T>
 concept isPrint = std::integral<T> || std::floating_point<T> || isTagString<T>;
 
 void print(std::ostream& os, const isPrint auto& val) {
-  os << val;
+  if constexpr(std::same_as<std::decay_t<decltype(val)>, TagByte>)
+    os << static_cast<int>(val);
+  else
+    os << val;
 }
 
 template <typename T>
@@ -377,6 +382,7 @@ void encode(std::ostream& os, const isTagCompound auto& map) {
     detail::encode(os, key);
     detail::encode(os, tag);
   }
+  detail::encode<TagByte>(os, TAG_END);
 }
 
 template <isTagCompound T> T decode(std::istream& is) {
@@ -405,7 +411,10 @@ void print(std::ostream& os, const isTagCompound auto& map,
     os << "\n" << next_indent << name << ": ";
     std::visit(pr, tag);
   }
-  os << "\n" << indent << "}";
+  if(map.empty())
+    os << "}";
+  else
+    os << "\n" << indent << "}";
 }
 
 } // namespace detail
@@ -417,6 +426,8 @@ struct NBTData {
 
 struct NBT {
   std::optional<NBTData> data;
+
+  NBT() = default;
 
   NBT(const TagString& name, const TagCompound& tags = {})
       : data {{name, tags}} {}

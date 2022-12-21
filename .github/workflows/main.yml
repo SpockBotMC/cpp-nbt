@@ -1,4 +1,5 @@
 name: build+tests
+on: [push, pull_request]
 
 jobs:
   linux:
@@ -11,7 +12,7 @@ jobs:
       - name: Install Build Dependencies
         run: |
           pacman --noconfirm -Syu
-          pacman --noconfirm -S cmake ninja
+          pacman --noconfirm -S cmake ninja boost git curl zip unzip tar
 
       - name: Configure
         run: cmake . -G Ninja -D RUN_COVERAGE:BOOL=ON
@@ -23,39 +24,40 @@ jobs:
         run: ctest -j6 -C Debug --output-on-failure
 
       - name: Upload Coverage
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v3
         with:
+          gcov: true
           gcov_args: -r
 
-  windows:
-    runs-on: windows-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+  # windows:
+  #   runs-on: windows-latest
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v2
 
-      - name: Configure
-        run: cmake .
+  #     - name: Configure
+  #       run: cmake .
 
-      - name: Build
-        run: cmake --build . --config Release
+  #     - name: Build
+  #       run: cmake --build . --config Release
 
-      - name: Test
-        run: ctest -j6 -C Release -T test --output-on-failure
+  #     - name: Test
+  #       run: ctest -j6 -C Release -T test --output-on-failure
 
-  osx:
-    runs-on: macos-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+  # osx:
+  #   runs-on: macos-latest
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v2
 
-      - name: Configure
-        env:
-          CC: gcc-11
-          CXX: g++-11
-        run: cmake .
+  #     - name: Configure
+  #       env:
+  #         CC: gcc-11
+  #         CXX: g++-11
+  #       run: cmake .
 
-      - name: Build
-        run: cmake --build . --config Release
+  #     - name: Build
+  #       run: cmake --build . --config Release
 
-      - name: Test
-        run: ctest -j6 -C Release -T test --output-on-failure
+  #     - name: Test
+  #       run: ctest -j6 -C Release -T test --output-on-failure

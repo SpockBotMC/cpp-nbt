@@ -1,42 +1,55 @@
 "List Test"
 <TagCompound> {
   list: <TagList of TagList> {
-    <TagList of TagEnd> {},
-    <TagList of TagByte> {1, 2, 3},
-    <TagList of TagShort> {256, 512, 768},
-    <TagList of TagInt> {65536, 131072, 196608},
-    <TagList of TagLong> {4294967296, 8589934592, 12884901888},
-    <TagList of TagFloat> {0.1, 0.2, 0.3},
-    <TagList of TagDouble> {0.1, 0.2, 0.3},
+    <TagList of TagEnd> {}
+    }
+    <TagList of TagByte> {
+      {1, 2, 3}
+    }
+    <TagList of TagShort> {
+      {256, 512, 768}
+    }
+    <TagList of TagInt> {
+      {65536, 131072, 196608}
+    }
+    <TagList of TagLong> {
+      {4294967296, 8589934592, 12884901888}
+    }
+    <TagList of TagFloat> {
+      {0.1, 0.2, 0.3}
+    }
+    <TagList of TagDouble> {
+      {0.1, 0.2, 0.3}
+    }
     <TagList of TagByteArray> {
-      {1},
-      {2},
+      {1}
+      {2}
       {3}
-    },
+    }
     <TagList of TagIntArray> {
-      {65536},
-      {131072},
+      {65536}
+      {131072}
       {196608}
-    },
+    }
     <TagList of TagLongArray> {
-      {4294967296},
-      {8589934592},
+      {4294967296}
+      {8589934592}
       {12884901888}
-    },
+    }
     <TagList of TagString> {
-      "String #1",
-      "String #2",
-      "String #3"
-    },
+      String #1
+      String #2
+      String #3
+    }
     <TagList of TagCompound> {
       <TagCompound> {
-        name: "Compound #1"
-      },
+        name: <TagString> Compound #1
+      }
       <TagCompound> {
-        name: "Compound #2"
-      },
+        name: <TagString> Compound #2
+      }
       <TagCompound> {
-        name: "Compound #3"
+        name: <TagString> Compound #3
       }
     }
   }

@@ -8,112 +8,84 @@
 
 int main() {
 
-  nbt::TagList test_list {
-      nbt::TagList {nbt::TagEnd {}},
-      {
-          nbt::TagByte {1},
-          nbt::TagByte {2},
-          nbt::TagByte {3},
+  nbt::TagList test_list {std::vector<nbt::TagList> {
+      std::vector<nbt::TagEnd> {{}},
+      std::vector<nbt::TagByte> {
+          1,
+          2,
+          3,
       },
-      {
-          nbt::TagShort {1 << 8},
-          nbt::TagShort {2 << 8},
-          nbt::TagShort {3 << 8},
+      std::vector<nbt::TagShort> {
+          1 << 8,
+          2 << 8,
+          3 << 8,
       },
-      {
-          nbt::TagInt {1 << 16},
-          nbt::TagInt {2 << 16},
-          nbt::TagInt {3 << 16},
+      std::vector<nbt::TagInt> {
+          1 << 16,
+          2 << 16,
+          3 << 16,
       },
-      {
-          nbt::TagLong {1LL << 32},
-          nbt::TagLong {2LL << 32},
-          nbt::TagLong {3LL << 32},
+      std::vector<nbt::TagLong> {
+          1LL << 32,
+          2LL << 32,
+          3LL << 32,
       },
-      {
-          nbt::TagFloat {0.1f},
-          nbt::TagFloat {0.2f},
-          nbt::TagFloat {0.3f},
+      std::vector<nbt::TagFloat> {
+          0.1f,
+          0.2f,
+          0.3f,
       },
-      {
-          nbt::TagDouble {0.1},
-          nbt::TagDouble {0.2},
-          nbt::TagDouble {0.3},
+      std::vector<nbt::TagDouble> {
+          0.1f,
+          0.2f,
+          0.3f,
       },
-      {
-          nbt::TagByteArray {1},
-          nbt::TagByteArray {2},
-          nbt::TagByteArray {3},
+      std::vector<nbt::TagByteArray> {
+          {1},
+          {2},
+          {3},
       },
-      {
-          nbt::TagIntArray {1 << 16},
-          nbt::TagIntArray {2 << 16},
-          nbt::TagIntArray {3 << 16},
+      std::vector<nbt::TagIntArray> {
+          {1 << 16},
+          {2 << 16},
+          {3 << 16},
       },
-      {
-          nbt::TagLongArray {1LL << 32},
-          nbt::TagLongArray {2LL << 32},
-          nbt::TagLongArray {3LL << 32},
+      std::vector<nbt::TagLongArray> {
+          {1LL << 32},
+          {2LL << 32},
+          {3LL << 32},
       },
-      {
+      std::vector<nbt::TagString> {
           "String #1",
           "String #2",
           "String #3",
       },
-      {
-          nbt::TagCompound {{"name", "Compound #1"}},
-          nbt::TagCompound {{"name", "Compound #2"}},
-          nbt::TagCompound {{"name", "Compound #3"}},
+      std::vector<nbt::TagCompound> {
+          {{"name", "Compound #1"}},
+          {{"name", "Compound #2"}},
+          {{"name", "Compound #3"}},
       },
-  };
+  }};
 
-  nbt::NBT root {"List Test", {{"list", test_list}}};
+  nbt::NBT nbt {"List Test", {{"list", test_list}}};
 
   std::stringstream good_buffer;
   good_buffer << std::ifstream {"list.nbt"}.rdbuf();
 
   std::stringstream test_buffer;
-  root.encode(test_buffer);
+  nbt.encode(test_buffer);
 
   assert(("binary_list", good_buffer.str() == test_buffer.str()));
 
-
   nbt::NBT file {good_buffer};
 
-  const auto& a {nbt::get_list<nbt::TagList>(root.at<nbt::TagList>("list"))};
-  const auto& b {nbt::get_list<nbt::TagList>(file.at<nbt::TagList>("list"))};
-
-
-#define TEST(name, type, index)                                               \
-  assert((                                                                    \
-      #name, nbt::get_list<type>(a[index]) == nbt::get_list<type>(b[index])))
-
-  TEST(list_byte, nbt::TagByte, 1);
-  TEST(list_short, nbt::TagShort, 2);
-  TEST(list_int, nbt::TagInt, 3);
-  TEST(list_long, nbt::TagLong, 4);
-  TEST(list_float, nbt::TagFloat, 5);
-  TEST(list_double, nbt::TagDouble, 6);
-  TEST(list_byte_array, nbt::TagByteArray, 7);
-  TEST(list_int_array, nbt::TagIntArray, 8);
-  TEST(list_long_array, nbt::TagLongArray, 9);
-
-
-  const auto& dicts_a {nbt::get_list<nbt::TagCompound>(a[11])};
-  const auto& dicts_b {nbt::get_list<nbt::TagCompound>(b[11])};
-
-  assert(("compound_list_length", dicts_a.size() == dicts_b.size()));
-
-  for(size_t i {0}; i < dicts_a.size(); i++)
-    for(const auto& [key, val] : dicts_a[i].base)
-      assert(("compound_compare",
-          std::get<nbt::TagString>(val) ==
-              std::get<nbt::TagString>(dicts_b[i].at(key))));
+  assert(nbt.data->tags.at("list") == file.data->tags.at("list"));
 
 
   std::stringstream print_buffer;
-  print_buffer << root;
+  print_buffer << nbt;
   std::stringstream good_print;
+
   good_print << std::ifstream {"printed_list.txt"}.rdbuf();
 
   assert(("printed_list", print_buffer.str() == good_print.str()));

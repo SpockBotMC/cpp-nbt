@@ -25,10 +25,12 @@ int main() {
 
   std::stringstream print_buffer;
   print_buffer << root;
-  const std::string expected {"\"Compound Test\"\n"
-                              "<TagCompound> {\n"
-                              "  compound: <TagCompound> {}\n"
-                              "}"};
+
+  const std::string expected {
+      "\"Compound Test\"\n"
+      "<TagCompound> {\n"
+      "  compound: <TagCompound> {}\n"
+      "}"};
 
   assert(("printed_compound", expected == print_buffer.str()));
 }
