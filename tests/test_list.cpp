@@ -8,7 +8,7 @@
 
 int main() {
 
-  nbt::TagList test_list {std::vector<nbt::TagList> {
+  std::vector<nbt::TagList> test_list {
       std::vector<nbt::TagEnd> {{}},
       std::vector<nbt::TagByte> {
           1,
@@ -65,7 +65,7 @@ int main() {
           {{"name", "Compound #2"}},
           {{"name", "Compound #3"}},
       },
-  }};
+  };
 
   nbt::NBT nbt {"List Test", {{"list", test_list}}};
 
